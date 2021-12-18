@@ -1,0 +1,23 @@
+# OS files
+.DS_Store
+.DS_Store?
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# NPM
+node_modules/
+npm-debug.log
+*.env
+
+# IDE
+.vs/
+*.code-workspace
+*.sln
+
+# Ceres
+runconfig.lua
+target/
+!template/target/
+war3.log

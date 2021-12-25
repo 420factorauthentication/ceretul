@@ -1,0 +1,50 @@
+/**********************************************************************/
+/* HotbarButtonIcon                                                   */
+/* Button icon for HotbarButtons.                                     */
+/*                                                                    */
+/* Set as ControlBackdrop. Set BackdropBackground when instantiating. */
+/**********************************************************************/
+Frame "BACKDROP" "HotbarButtonIcon" {
+    SetAllPoints,
+    BackdropBlendAll,
+    BackdropBackground "ReplaceableTextures/CommandButtons/BTNBox", //default
+}
+
+/*********************************************************/
+/* HotbarButton                                          */
+/* A button that goes in a Hotbar.                       */
+/*                                                       */
+/* Set position and ControlBackdrops when instantiating. */
+/*********************************************************/
+Frame "GLUEBUTTON" "HotbarButton" {
+    Width 0.03354838709,
+    Height 0.03354838709,
+    ControlStyle "AUTOTRACK|HIGHLIGHTONMOUSEOVER",
+}
+
+/*************************************/
+/* HotbarSlot                        */
+/* An empty button slot in a Hotbar. */
+/*                                   */
+/* Set position when instantiating.  */
+/*************************************/
+Frame "BACKDROP" "HotbarSlot" {
+    BackdropBackground "UI/Console/Human/human-transport-slot",
+    Width 0.04250,
+    Height 0.04250,
+    BackdropBackgroundInsets 0.00125 0.00125 0.00125 0.00125,
+    BackdropBlendAll,
+}
+
+/******************************************/
+/* HotbarButtonMouseover                  */
+/* Mouseover highlight for HotbarButtons. */
+/*                                        */
+/* Set as ControlMouseOverHighlight.      */
+/******************************************/
+Frame "HIGHLIGHT" "HotbarButtonMouseover" {
+    SetAllPoints,
+    HighlightType "FILETEXTURE",
+    HighlightAlphaFile "UI/Glues/ScoreScreen/scorescreen-tab-hilight",
+    HighlightAlphaMode "ADD",
+}

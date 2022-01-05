@@ -130,7 +130,7 @@ end
 -- NOTE: case-sensitive                                                                --
 --=====================================================================================--
 libHelper.readDirFilesWithSuffix = function(path, suffix, includeSuffix)
-    includeSuffix = includeSuffix or true
+    if (includeSuffix == nil) then includeSuffix = true end
     local try, msg = fs.readDir(path)
     if (type(try) == "table") then
         local output = {}

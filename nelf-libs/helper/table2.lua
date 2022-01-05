@@ -152,7 +152,7 @@ table2.supaTable = setmetatable({
     -- If checkSubTables is true, recursively converts all subtables to supaTables and watches all their properties. --
     --===============================================================================================================--
     watchProp = function(self, func, prop, checkSubTables)
-        checkSubTables = checkSubTables or true
+        if (checkSubTables == nil) then checkSubTables = true end
         local tbl = getmetatable(self).__index
 
         -- If enabled, convert subtables to supaTables and watch their properties too --
@@ -199,7 +199,7 @@ table2.supaTable = setmetatable({
     -- If checkSubTables == true, checks function lists of all subtables.  --
     --=====================================================================--
     unwatchProp = function(self, func, prop, checkSubTables)
-        checkSubTables = checkSubTables or true
+        if (checkSubTables == nil) then checkSubTables = true end
         local tbl = getmetatable(self).__index
 
         -- If enabled, convert subtables to supaTables and unwatch their properties too --
@@ -265,8 +265,8 @@ table2.supaTable = setmetatable({
     -- If watch == true, sets subtables whenever the property changes. --
     --=================================================================--
     setReadOnly = function(self, readOnly, prop, checkSubTables, watch)
-        checkSubTables = checkSubTables or true
-        watch = watch or true
+        if (checkSubTables == nil) then checkSubTables = true end
+        if (watch == nil) then watch = true end
         local tbl = getmetatable(self).__index
         
         -- If flagged, set properties to read-only --

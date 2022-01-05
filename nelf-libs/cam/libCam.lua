@@ -209,15 +209,15 @@ libCam.camView = setmetatable({
     CamLocX    = {},  -- X-coordinate of camera
     CamLocY    = {},  -- Y-coordinate of camera
     OffsetZ    = {},  -- Z-height of camera from the ground
-    TargetDist = {},  -- Length along Line Of Sight between camera and ground. If FOV is set, this is overriden.
+    TargetDist = {},  -- Length along Line Of Sight between camera and ground. Overridden every time FOV is set.
 
     --== Orientation ==--
-    AngleOfAtk = {},  -- Forward tilt / airplane nosedive.    0°: forward    90°: up              180°: backward       270°: down
-    Roll       = {},  -- Sideways tilt / barrel-roll.         0°: upright    90°: tilted right    180°: upside down    270°: tilted left
-    Rotation   = {},  -- Pan / unit circle rotation.          0°: east       90°: north           180°: west           270°: south
-    LocalPitch = {},  -- Rotating the camera's x-axis. Different way to express Angle of Attack.
-    LocalRoll  = {},  -- Rotating the camera's y-axis. Different way to express Roll.
-    LocalYaw   = {},  -- Rotating the camera's z-axis. Different way to express Rotation.
+    AngleOfAtk = {},  -- Pitch.    0°: forward    90°: up              180°: backward       270°: down
+    Roll       = {},  -- Roll.     0°: upright    90°: tilted right    180°: upside down    270°: tilted left
+    Rotation   = {},  -- Yaw.      0°: east       90°: north           180°: west           270°: south
+    LocalPitch = {},  -- Also pitch. local?
+    LocalRoll  = {},  -- Also roll.  local?
+    LocalYaw   = {},  -- Also yaw.   local?
 
     --== View ==--
     FOV        = {},  -- Angle of a camera's cone-shaped view. If changed, TargetDist is recalculated and overridden.
@@ -402,7 +402,7 @@ libCam.camViewButton = setmetatable({
     --   (i.e. not a FrameEvent), set runtime = true.            --
     --===========================================================--
     updateTrigger = function(self, runtime)
-        runtime = runtime or true
+        if (runtime == nil) then runtime = true end
         local tbl = getmetatable(self).__index
         
         local func = function()

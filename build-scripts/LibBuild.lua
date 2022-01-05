@@ -134,6 +134,7 @@ end
 -- See 'template/config/modules.lua.md' for more info.                     --
 --=========================================================================--
 libBuild.getRuntimeModuleFiles = function(modules)
+    local projDir = ceres.getScriptArgs()[1]
     local pathSeparator = package.config:sub(1,1)
     local tocBuffer  = ""
     local modFiles   = {}

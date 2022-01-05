@@ -39,6 +39,13 @@ See [Ceres Docs](https://github.com/ceres-wc3/ceres-lua-template/blob/master/run
 
 
 
+## War3 Notes ##
+- Certain keywords in FDF filenames cause errors. Known keywords:
+    - "Log"
+<br/><br/><br/>
+
+
+
 ## Ceres Notes ##
 - Ceres sets LUA_PATH to include `"?.lua"` but not `"?"`. Leave out the file
   extension when using `require`.

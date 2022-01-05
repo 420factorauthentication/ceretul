@@ -42,6 +42,7 @@ local runtimes    = libBuild.parseProjConfigFile("runtime.lua")
 ---------------------
 libBuild.logHeader("RUNTIME MODULES")
 local modFiles = libBuild.getRuntimeModuleFiles(modules)
+for k, v in pairs(modFiles.imports) do table.insert(imports, v) end
 
 
 
@@ -55,7 +56,7 @@ local srcObjs    = libBuild.parseCoreDir("objects")
 local srcTrigs   = libBuild.parseCoreDir("triggers")
 local srcMains   = libBuild.parseCoreDir("main")
 local srcImports = libBuild.parseSrcFrames()
-for k, v in pairs(srcImports) do imports[k] = v end
+for k, v in pairs(srcImports) do table.insert(imports, v) end
 libBuild.generateRuntimeMain(modFiles.globals, modFiles.abils, modFiles.units, srcAbils, srcUnits, srcObjs, srcTrigs, srcMains)
 
 

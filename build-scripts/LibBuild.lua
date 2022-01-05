@@ -162,7 +162,8 @@ libBuild.getRuntimeModuleFiles = function(modules)
                     local fPrefix = v2:find("f", rootLen)
                     local fileName = v2:sub(rootLen + 1)
                     local fileReq = fileName:sub(1, (-1 - luaSuffix:len()))
-                    local fileRelPath = libHelper.formPath(v1, fileName)
+                    -- local fileRelPath = libHelper.formPath(v1, fileName)
+                    local fileRelPath = v1 .. "/" .. fileName
 
                     if (gPrefix == (rootLen + 1)) then
                         table.insert(modFiles.globals, fileReq)
@@ -171,7 +172,7 @@ libBuild.getRuntimeModuleFiles = function(modules)
                     elseif (uPrefix == (rootLen + 1)) then
                         table.insert(modFiles.units, fileReq)
                     elseif (fPrefix == (rootLen + 1)) then
-                        tocBuffer = tocBuffer .. fileRelPath .. "\n"
+                        tocBuffer = tocBuffer .. fileRelPath:gsub("/", "\\") .. "\n"
                         table.insert(modFiles.imports, {fileRelPath})
                     end
                 end
@@ -194,9 +195,13 @@ libBuild.getRuntimeModuleFiles = function(modules)
             print("> ERROR: Module \"" .. v1 .. "\" doesn't exist!")
         end
     end
-
-    -- Create one TOC file for all module FDFs --
+ 
     if (tocBuffer ~= "") then
+        -- Add Dummy FDF to fix weird bug --
+        tocBuffer = tocBuffer .. "build-scripts\\Dummy.fdf" .. "\n"
+        table.insert(modFiles.imports, {"build-scripts/Dummy.fdf"})
+
+        -- Create one TOC file for all module FDFs --
         print("\n> NOTE: Module FDFs detected. Generating module TOC file...")
         local outputPath = libHelper.formPath(projDir, "target", "_build", "libFrames.toc")
         local try, msg = fs.writeFile(outputPath, tocBuffer)
@@ -238,7 +243,12 @@ libBuild.parseSrcFrames = function()
             table.insert(imports, {v, filePathInsideMPQ})
             tocBuffer = tocBuffer .. filePathInsideMPQ .. "\n"
         end
+
+        -- Add Dummy FDF to fix weird bug --
+        tocBuffer = tocBuffer .. "build-scripts\\Dummy.fdf" .. "\n"
+        table.insert(imports, {"build-scripts/Dummy.fdf"})
         
+        -- Create one TOC file for all src FDFs --
         local outputPath = libHelper.formPath(projDir, "target", "_build", "srcFrames.toc")
         local try, msg = fs.writeFile(outputPath, tocBuffer)
         if (try == false) then

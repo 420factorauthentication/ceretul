@@ -1,0 +1,2 @@
+// WEIRD BUG: Can't create any frames from the last FDF loaded in any TOC file.
+// WORKAROUND: Load this empty FDF file last in every TOC file.

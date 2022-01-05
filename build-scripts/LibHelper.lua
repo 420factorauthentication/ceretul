@@ -7,8 +7,6 @@ local libHelper = {}
 --===================================================================--
 -- getLowestLevelStart()                                             --
 --   path: string                                                    --
---   delim: string = (OS Path Separator)                             --
---   countAllSlashes: boolean = true                                 --
 --                                                                   --
 -- In a string, finds the index of the last path separator (/ or \). --
 -- Returns (index + 1) if successful.                                --
@@ -18,11 +16,10 @@ libHelper.getLowestLevelStart = function(path)
     local i, j = 0, 0
     local i2, j2
     local delimFoundCount = -1
-    local delimPattern
 
     repeat
         i2, j2 = i, j
-        i, j = path:find("[/\\]", (j + 1))
+        i, j = path:find("[/\\]", j+1)
         delimFoundCount = delimFoundCount + 1
     until (i == nil)
 

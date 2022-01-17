@@ -1,0 +1,143 @@
+/*******************************************************************/
+/* Card                                                            */
+/*                                                                 */
+/* Template. Instantiate with code and modify children properties. */
+/* Make sure each instance has a unique CreateContext.             */
+/*******************************************************************/
+Frame "FRAME" "Card" {
+    Width 0.1,
+    Height 0.18,
+
+    // 0. BlzFrameSetTexture() //
+    Frame "BACKDROP" "CardBackBG" {
+        SetAllPoints,
+        BackdropBlendAll,
+        BackdropBackground "ccg-lib/art/cardback-eco",
+    }
+
+    // 1. BlzFrameSetTexture() //
+    Frame "BACKDROP" "CardFrontBG" {
+        SetAllPoints,
+        BackdropBlendAll,
+        BackdropBackground "ccg-lib/art/cardback-eco",
+    }
+
+    // 2. BlzFrameSetTexture() //
+    Frame "BACKDROP" "CardArt" {
+        Width 0.06,
+        Height 0.06,
+        UseActiveContext,
+        SetPoint BOTTOMLEFT, "Card", BOTTOMLEFT, 0.03, 0.09,
+        BackdropBlendAll,
+        BackdropBackground "nelf-libs/assets/blank",
+    }
+
+    // 3. BlzFrameSetText() //
+    Frame "TEXT" "CardTitle" {
+        SetAllPoints,
+        FontJustificationOffset 0 -0.01,
+        FontJustificationH JUSTIFYCENTER,
+        FontJustificationV JUSTIFYTOP,
+        FrameFont "nelf-libs/ccg/vendor/Itim/Itim-Regular.ttf", 0.008, "",
+        FontColor 0.0 0.0 0.0 1.0,
+        Text "Card Title",
+    }
+
+    // 4. BlzFrameSetText() //
+    Frame "TEXT" "CardDesc" {
+        Width 0.08,
+        Height 0.04,
+        UseActiveContext,
+        SetPoint BOTTOM, "Card", BOTTOM, 0.0, 0.02,
+        FontJustificationH JUSTIFYCENTER,
+        FontJustificationV JUSTIFYTOP,
+        FrameFont "nelf-libs/ccg/vendor/Itim/Itim-Regular.ttf", 0.007, "",
+        FontColor 0.0 0.0 0.0 1.0,
+        Text "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque eu lorem dignissim justo sagittis elementum. Suspendisse auctor quis eros vitae elementum. Sed tempus sodales lorem, in ultricies tellus tincidunt at. Nullam ullamcorper aliquam massa, at efficitur metus. Fusce molestie nisi risus, non consectetur nulla aliquam non. Fusce euismod et dui quis egestas. Aenean lectus magna, sollicitudin non egestas a, consequat semper nisi. Quisque vitae. ",
+    }
+
+    // 5. BlzFrameSetText() //
+    Frame "TEXT" "CardGoldCost" {
+
+    }
+
+    // 6. BlzFrameSetText() //
+    Frame "TEXT" "CardFoodCost" {
+
+    }
+
+    // 7. Blank button to enable mouse events //
+    Frame "GLUEBUTTON" "CardButton" {
+        SetAllPoints,
+        ControlStyle "AUTOTRACK",
+    }
+}
+
+/*******************************************************************/
+/* CardZoom                                                        */
+/* Larger version of Card shown above on mouseover.                */
+/* Template. Instantiate with code and modify children properties. */
+/* Make sure each instance has a unique CreateContext.             */
+/*******************************************************************/
+Frame "FRAME" "CardZoom" {
+    Width 0.15,
+    Height 0.27,
+
+    // 0. BlzFrameSetTexture() //
+    Frame "BACKDROP" "CardZoomBackBG" {
+        SetAllPoints,
+        BackdropBlendAll,
+        BackdropBackground "nelf-libs/ccg/cardbacks/card-eco",
+    }
+
+    // 1. BlzFrameSetTexture() //
+    Frame "BACKDROP" "CardZoomFrontBG" {
+        SetAllPoints,
+        BackdropBlendAll,
+        BackdropBackground "nelf-libs/ccg/cardbacks/card-eco",
+    }
+
+    // 2. BlzFrameSetTexture() //
+    Frame "BACKDROP" "CardZoomArt" {
+        Width 0.09,
+        Height 0.09,
+        UseActiveContext,
+        SetPoint BOTTOMLEFT, "CardZoom", BOTTOMLEFT, 0.045, 0.135,
+        BackdropBlendAll,
+        BackdropBackground "ui-libs/assets/blank",
+    }
+
+    // 3. BlzFrameSetText() //
+    Frame "TEXT" "CardZoomTitle" {
+        SetAllPoints,
+        FontJustificationOffset 0 -0.015,
+        FontJustificationH JUSTIFYCENTER,
+        FontJustificationV JUSTIFYTOP,
+        FrameFont "nelf-libs/ccg/vendor/Itim/Itim-Regular.ttf", 0.012, "",
+        FontColor 0.0 0.0 0.0 1.0,
+        Text "Card Title",
+    }
+
+    // 4. BlzFrameSetText() //
+    Frame "TEXT" "CardZoomDesc" {
+        Width 0.12,
+        Height 0.06,
+        UseActiveContext,
+        SetPoint BOTTOM, "CardZoom", BOTTOM, 0.0, 0.03,
+        FontJustificationH JUSTIFYCENTER,
+        FontJustificationV JUSTIFYTOP,
+        FrameFont "nelf-libs/ccg/vendor/Itim/Itim-Regular.ttf", 0.0105, "",
+        FontColor 0.0 0.0 0.0 1.0,
+        Text "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque eu lorem dignissim justo sagittis elementum. Suspendisse auctor quis eros vitae elementum. Sed tempus sodales lorem, in ultricies tellus tincidunt at. Nullam ullamcorper aliquam massa, at efficitur metus. Fusce molestie nisi risus, non consectetur nulla aliquam non. Fusce euismod et dui quis egestas. Aenean lectus magna, sollicitudin non egestas a, consequat semper nisi. Quisque vitae. ",
+    }
+
+    // 5. BlzFrameSetText() //
+    Frame "TEXT" "CardZoomGoldCost" {
+
+    }
+
+    // 6. BlzFrameSetText() //
+    Frame "TEXT" "CardZoomFoodCost" {
+
+    }
+}

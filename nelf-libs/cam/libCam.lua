@@ -139,10 +139,10 @@ libCam.unlockCam = function(playerId)
         local targetY = GetCameraTargetPositionY()
         local targetZ = GetCameraTargetPositionZ()
         local target  = math2.vec3:new(targetX - camX, targetY - camY, targetZ - camZ)
-        local angleOfAtk = target:altitude()
-        local rotation   = target:azimuth()
+        local angleOfAtk = target:pitch()
+        local rotation   = target:yaw()
         local targetDist = target:length()
-        local roll       = math.deg(GetCameraField(CAMERA_FIELD_ROLL)) --todo: calculate roll (is it possible?)
+        local roll       = math.deg(GetCameraField(CAMERA_FIELD_ROLL)) --cant calculate roll, so set it to CamSetup default
         
         -- Unlock camera and reset allowLookAround --
         SetCameraOrientController(gCam.camGhostUnitReset, 0, 0)
@@ -206,23 +206,23 @@ libCam.camView = setmetatable({
     Name = "New Cam View",
 
     --== Position ==--
-    CamLocX    = {},  -- X-coordinate of camera
-    CamLocY    = {},  -- Y-coordinate of camera
-    OffsetZ    = {},  -- Z-height of camera from the ground
-    TargetDist = {},  -- Length along Line Of Sight between camera and ground. Overridden every time FOV is set.
+    CamLocX,     -- X-coordinate of camera
+    CamLocY,     -- Y-coordinate of camera
+    OffsetZ,     -- Z-height of camera from the ground
+    TargetDist,  -- Length along Line Of Sight between camera and ground. Overridden every time FOV is set.
 
     --== Orientation ==--
-    AngleOfAtk = {},  -- Pitch.    0°: forward    90°: up              180°: backward       270°: down
-    Roll       = {},  -- Roll.     0°: upright    90°: tilted right    180°: upside down    270°: tilted left
-    Rotation   = {},  -- Yaw.      0°: east       90°: north           180°: west           270°: south
-    LocalPitch = {},  -- Also pitch. local?
-    LocalRoll  = {},  -- Also roll.  local?
-    LocalYaw   = {},  -- Also yaw.   local?
+    AngleOfAtk,  -- Pitch.    0°: forward    90°: up              180°: backward       270°: down
+    Roll,        -- Roll.     0°: upright    90°: tilted right    180°: upside down    270°: tilted left
+    Rotation,    -- Yaw.      0°: east       90°: north           180°: west           270°: south
+    LocalPitch,  -- Also pitch. local?
+    LocalRoll,   -- Also roll.  local?
+    LocalYaw,    -- Also yaw.   local?
 
     --== View ==--
-    FOV        = {},  -- Angle of a camera's cone-shaped view. If changed, TargetDist is recalculated and overridden.
-    NearZ      = {},  -- Length of an inner layer of absolute fog.
-    FarZ       = {},  -- Length along LOS before absolute fog is rendered instead of gameworld.
+    FOV,    -- Angle of a camera's cone-shaped view. If changed, TargetDist is recalculated and overridden.
+    NearZ,  -- Length of an inner layer of absolute fog.
+    FarZ,   -- Length along LOS before absolute fog is rendered instead of gameworld.
 
     --=============--
     -- Constructor --
@@ -290,13 +290,13 @@ libCam.camView = setmetatable({
 --===================================================================================--
 libCam.terrainFog = setmetatable({
     Name = "New Terrain Fog",
-    FogStartZ  = {},  -- Distance from the start of a gradual terrain fog layer that can be colored. At this point, terrain fog color is completely transparent.
-    FogEndZ    = {},  -- Distance from the end of the gradual terrain fog layer. Past this point, terrain fog color is completely opaque.
-    FogStyle   = {},  -- 0 = Linear,  1 = Exponential One,  2 = Exponential Two
-    FogDensity = {},  -- Opacity multiplier of terrain fog layer.
-    FogColorR  = {},  -- Red in RGB color of terrain fog layer.
-    FogColorG  = {},  -- Green in RGB color of terrain fog layer.
-    FogColorB  = {},  -- Blue in RGB color of terrain fog layer.
+    FogStartZ,   -- Distance from the start of a gradual terrain fog layer that can be colored. At this point, terrain fog color is completely transparent.
+    FogEndZ,     -- Distance from the end of the gradual terrain fog layer. Past this point, terrain fog color is completely opaque.
+    FogStyle,    -- 0 = Linear,  1 = Exponential One,  2 = Exponential Two
+    FogDensity,  -- Opacity multiplier of terrain fog layer.
+    FogColorR,   -- Red in RGB color of terrain fog layer.
+    FogColorG,   -- Green in RGB color of terrain fog layer.
+    FogColorB,   -- Blue in RGB color of terrain fog layer.
 
     --=============--
     -- Constructor --
@@ -353,13 +353,13 @@ libCam.camViewButton = setmetatable({
     Name = "New Cam View Button",
 
     --== Read-Only ==--
-    Trig    = nil,  -- Trigger for Button FrameEvents.
+    Trig,  -- Trigger for Button FrameEvents.
 
     --== Trig Automatically Updates Whenever These Properties Are Changed ==--
-    Button  = nil,  -- Name of War3 Frame. When clicked, applies all of the below.
-    CamView = nil,  -- camView to apply.
-    Fog     = nil,  -- terrainFog to apply.
-    CGU     = nil,  -- camGhostUnit to lock the cam to.
+    Button,   -- Name of War3 Frame. When clicked, applies all of the below.
+    CamView,  -- camView to apply.
+    Fog,      -- terrainFog to apply.
+    CGU,      -- camGhostUnit to lock the cam to.
 
     --=============--
     -- Constructor --
@@ -414,18 +414,17 @@ libCam.camViewButton = setmetatable({
             if ((self.Button ~= nil) and ((self.CamView ~= nil) or (self.Fog ~= nil) or (self.CGU ~= nil))) then
                 tbl.Trig = CreateTrigger()
                 BlzTriggerRegisterFrameEvent(self.Trig, BlzGetFrameByName(self.Button, 0), FRAMEEVENT_CONTROL_CLICK)
-
                 TriggerAddAction(self.Trig, function()
                     local trigPlayerId = GetPlayerId(GetTriggerPlayer())
+
                     if (self.CamView ~= nil) then
-                        self.CamView:apply(trigPlayerId)
-                    end
+                        self.CamView:apply(trigPlayerId) end
+
                     if (self.Fog ~= nil) then
-                        self.Fog:apply(trigPlayerId)
-                    end
+                        self.Fog:apply(trigPlayerId) end
+
                     if ((self.CGU ~= nil) and (GetLocalPlayer() == Player(trigPlayerId))) then
-                        SetCameraTargetController(self.CGU, 0, 0, false)
-                    end
+                        SetCameraTargetController(self.CGU, 0, 0, false) end
                 end)
             end
         end

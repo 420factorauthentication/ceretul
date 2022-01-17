@@ -1,0 +1,266 @@
+// -- INCLUDE FILES ---------------------------------------------------------
+
+
+IncludeFile "UI\FrameDef\UI\EscMenuTemplates.fdf",
+
+
+
+// -- LOCAL TEMPLATES -------------------------------------------------------
+
+
+Frame "BACKDROP" "NewTabMenuSectionBG" {
+    SetAllPoints,
+    UseActiveContext,
+    DecorateFileNames,
+    BackdropTileBackground,
+    BackdropBlendAll,
+    BackdropBackground "EscMenuEditBoxBackground",
+    BackdropEdgeFile "EscMenuEditBoxBorder",
+    BackdropCornerFlags "UL|UR|BL|BR|T|L|B|R",
+    BackdropBackgroundSize 0.064,
+    BackdropCornerSize 0.008,
+    BackdropBackgroundInsets 0.004 0.004 0.004 0.004,
+}
+
+
+Frame "TEXT" "NewTabMenuTabText" {
+    //Base: EscMenuButtonTextTemplate
+    SetAllPoints,
+    UseActiveContext,
+    DecorateFileNames,
+    FrameFont "EscMenuTextFont", 0.013, "",
+    FontJustificationH JUSTIFYCENTER,
+    FontJustificationV JUSTIFYMIDDLE,
+    FontJustificationOffset 0.0005 -0.002,  // uncentered bandaid fix
+    FontFlags "NOWRAP",
+    FontColor 0.99 0.827 0.0705 1.0,
+    FontHighlightColor 1.0 1.0 1.0 1.0,
+    FontDisabledColor 0.5 0.5 0.5 1.0,
+	FontShadowColor 0.0 0.0 0.0 0.9,
+    FontShadowOffset 0.002 -0.002,
+}
+
+
+Frame "TEXT" "NewTabMenuBodyText" {
+    //Base: EscMenuInfoTextTemplate
+    SetAllPoints,
+    UseActiveContext,
+    DecorateFileNames,
+    FrameFont "EscMenuTextFont", 0.011, "",
+    FontJustificationH JUSTIFYLEFT,
+    FontJustificationV JUSTIFYTOP,
+    FontJustificationOffset 0.015625 -0.015625, // 0.5 (body) * [1/32]
+    FontFlags "NOWRAP",
+    FontColor 0.99 0.827 0.0705 1.0,
+    FontHighlightColor 1.0 1.0 1.0 1.0,
+    FontDisabledColor 0.5 0.5 0.5 1.0,
+	FontShadowColor 0.0 0.0 0.0 0.9,
+    FontShadowOffset 0.002 -0.002,
+}
+
+
+Frame "HIGHLIGHT" "NewTabMenuMouseover" {
+    SetAllPoints,
+    UseActiveContext,
+    HighlightType "FILETEXTURE",
+    HighlightAlphaFile "UI/Glues/ScoreScreen/scorescreen-tab-hilight",
+    HighlightAlphaMode "ADD",
+}
+
+
+Frame "GLUETEXTBUTTON" "NewTabMenuTab" {
+    Width 0.1171875, // 0.5 * 15/16 (TabMenuTabBar) * [1/4]
+    Height 0.03125,  // 0.5 * [1/16]
+    UseActiveContext,
+    ControlStyle "AUTOTRACK|HIGHLIGHTONMOUSEOVER",
+
+    ControlBackdrop "TabMenuTabBgDefault",
+    Frame "BACKDROP" "TabMenuTabBgDefault" INHERITS "EscMenuButtonBackdropTemplate" {}
+
+    ControlPushedBackdrop "TabMenuTabBgDown",
+    Frame "BACKDROP" "TabMenuTabBgDown" INHERITS "EscMenuButtonPushedBackdropTemplate" {}
+    
+    ControlDisabledBackdrop "TabMenuTabBgDisabled",
+    Frame "BACKDROP" "TabMenuTabBgDisabled" INHERITS "EscMenuButtonDisabledBackdropTemplate" {}
+
+    ControlDisabledPushedBackdrop "TabMenuTabBgDisabledPushed",
+    Frame "BACKDROP" "TabMenuTabBgDisabledPushed" INHERITS "EscMenuButtonDisabledPushedBackdropTemplate" {}
+
+    ControlMouseOverHighlight "TabMenuTabMouseover",
+    Frame "HIGHLIGHT" "TabMenuTabMouseover" INHERITS "NewTabMenuMouseover" {}
+
+    ButtonText "TabMenuTabText0",
+    Frame "TEXT" "TabMenuTabText0" INHERITS "NewTabMenuTabText" {Text "Tab 0",}
+}
+
+
+
+// -- FRAMES ----------------------------------------------------------------
+
+
+Frame "FRAME" "TabMenu" {
+    Width 0.55,  // 0.5 (body) + 0.025 + 0.025 (borders)
+    Height 0.55, // 0.5 (body) + 0.025 + 0.025 (borders)
+
+
+    // 0. TabMenu BG and Border //
+    Frame "BACKDROP" "TabMenuBg" {
+        SetAllPoints,
+        UseActiveContext,
+        DecorateFileNames,
+        BackdropTileBackground,
+        BackdropBlendAll,
+        BackdropBackground "EscMenuBackground",
+        BackdropEdgeFile "EscMenuBorder",
+        BackdropCornerFlags "UL|UR|BL|BR|T|L|B|R",
+        BackdropBackgroundSize 0.128,
+        BackdropCornerSize 0.0455,  // 0.025 (border) / 0.5 (body) + 0.025 + 0.025 (borders)
+        BackdropBackgroundInsets 0.01 0.01 0.01 0.01,
+    }
+
+
+    // 1. X Button //
+    Frame "GLUETEXTBUTTON" "TabMenuCloseButton" {
+        Width 0.03125,  // 0.5 (body) * [1/16]
+        Height 0.03125, // 0.5 (body) * [1/16]
+        ControlStyle "AUTOTRACK|HIGHLIGHTONMOUSEOVER",
+
+        // If no Leaderboard, put X Button in top right
+        SetPoint TOPLEFT, "TabMenu", TOPLEFT, 0.49375, -0.025, // 0.5 (body) * [15/16]  +  0.025 (border)    // 0.025 (border)
+        
+        // If Leaderboard, put X Button in top left
+        // SetPoint TOPLEFT, "TabMenu", TOPLEFT, 0.025, -0.025, // (border)
+
+        ControlBackdrop "TabMenuCloseButtonBgDefault",
+        Frame "BACKDROP" "TabMenuCloseButtonBgDefault" INHERITS "EscMenuButtonBackdropTemplate" {}
+
+        ControlPushedBackdrop "TabMenuCloseButtonBgDown",
+        Frame "BACKDROP" "TabMenuCloseButtonBgDown" INHERITS "EscMenuButtonPushedBackdropTemplate" {}
+        
+        ControlDisabledBackdrop "TabMenuCloseButtonBgDisabled",
+        Frame "BACKDROP" "TabMenuCloseButtonBgDisabled" INHERITS "EscMenuButtonDisabledBackdropTemplate" {}
+
+        ControlDisabledPushedBackdrop "TabMenuCloseButtonBgDisabledPushed",
+        Frame "BACKDROP" "TabMenuCloseButtonBgDisabledPushed" INHERITS "EscMenuButtonDisabledPushedBackdropTemplate" {}
+
+        ControlMouseOverHighlight "TabMenuCloseButtonMouseover",
+        Frame "HIGHLIGHT" "TabMenuCloseButtonMouseover" INHERITS "NewTabMenuMouseover" {}
+
+        ButtonText "TabMenuCloseButtonText",
+        Frame "TEXT" "TabMenuCloseButtonText" INHERITS "EscMenuTitleTextTemplate" {
+            SetAllPoints,
+            UseActiveContext,
+            FontJustificationH JUSTIFYCENTER,
+            FontJustificationV JUSTIFYMIDDLE,
+            FontJustificationOffset 0.0005 -0.002,  // uncentered bandaid fix
+            FontFlags "NOWRAP",
+            Text "X",
+        }
+    }
+
+
+    // 2. Top Row Of Tabs //
+    Frame "TEXTAREA" "TabMenuTabBar" {
+        Width 0.46875,  // 0.5 (body) * [15/16]
+        Height 0.03125, // 0.5 (body) * [1/16]
+
+        // If no Leaderboard, put X Button in top right
+        SetPoint TOPLEFT, "TabMenu", TOPLEFT, 0.025, -0.025, // (border)
+
+        // If Leaderboard, put X Button in top left
+        // SetPoint TOPLEFT, "TabMenu", TOPLEFT, 0.05625, -0.025, // 0.5 (body) * [1/16]  +  0.025 (border)    // (border)
+
+
+        Frame "GLUETEXTBUTTON" "TabMenuTab0" INHERITS WITHCHILDREN "NewTabMenuTab" {
+            SetPoint TOPLEFT, "TabMenuTabBar", TOPLEFT, 0, 0,
+
+            ButtonText "TabMenuTabText0",
+            Frame "TEXT" "TabMenuTabText0" INHERITS "NewTabMenuTabText" {Text "Tab 0",}
+        }
+
+
+        Frame "GLUETEXTBUTTON" "TabMenuTab1" INHERITS WITHCHILDREN "NewTabMenuTab" {
+            SetPoint TOPLEFT, "TabMenuTabBar", TOPLEFT, 0.1171875, 0, // 0.5 (body) * [15/16] * [1/4]
+
+            ButtonText "TabMenuTabText1",
+            Frame "TEXT" "TabMenuTabText1" INHERITS "NewTabMenuTabText" {Text "Tab 1",}
+        }
+
+
+        Frame "GLUETEXTBUTTON" "TabMenuTab2" INHERITS WITHCHILDREN "NewTabMenuTab" {
+            SetPoint TOPLEFT, "TabMenuTabBar", TOPLEFT, 0.234375, 0, // 0.5 * 15/16 (TabMenuTabBar) * [2/4]
+
+            ButtonText "TabMenuTabText2",
+            Frame "TEXT" "TabMenuTabText2" INHERITS "NewTabMenuTabText" {Text "Tab 2",}
+        }
+
+
+        Frame "GLUETEXTBUTTON" "TabMenuTab3" INHERITS WITHCHILDREN "NewTabMenuTab" {
+            SetPoint TOPLEFT, "TabMenuTabBar", TOPLEFT, 0.3515625, 0, // 0.5 * 15/16 (TabMenuTabBar) * [3/4]
+
+            ButtonText "TabMenuTabText3",
+            Frame "TEXT" "TabMenuTabText3" INHERITS "NewTabMenuTabText" {Text "Tab 3",}
+        }
+
+        Frame "GLUETEXTBUTTON" "TabMenuTab4" INHERITS WITHCHILDREN "NewTabMenuTab" {
+            Width 0, //Initially hidden; changes with slider
+            SetPoint TOPLEFT, "TabMenuTabBar", TOPLEFT, 0.46875, 0, // 0.5 * 15/16 (TabMenuTabBar) * [4/4]
+
+            ButtonText "TabMenuTabText4",
+            Frame "TEXT" "TabMenuTabText4" INHERITS "NewTabMenuTabText" {Text "Tab 4",}
+        }
+    }
+
+
+    // 3. Tab Bar Slider //
+    Frame "SLIDER" "TabMenuTabBarSlider" INHERITS WITHCHILDREN "EscMenuSliderTemplate" {
+        Width 0.46875,  // 0.5 (body) * [15/16]
+
+        // If no Leaderboard, put X Button in top right
+        SetPoint TOPLEFT, "TabMenu", TOPLEFT, 0.025, -0.05625, // 0.025 (border)    // 0.5 (body) * [1/16]  +  0.025 (border)
+
+        // If Leaderboard, put X Button in top left
+        // SetPoint TOPLEFT, "TabMenu", TOPLEFT, 0.05625, -0.05625, // 0.5 (body) * [1/16]  +  0.025 (border)
+
+        SliderMinValue 0,
+        SliderMaxValue 100,
+        SliderInitialValue 0,
+        SliderStepSize 1,
+    }
+
+
+    // 4. Left Title //
+    Frame "FRAME" "TabMenuTitle" {
+        Width 0.234375, // 0.5 (body) * [15/32]
+        Height 0.03125, // 0.5 (body) * [1/16]
+        SetPoint TOPLEFT, "TabMenu", TOPLEFT, 0.040625, -0.0875, // 0.5 (body) * [1/32]  +  0.025 (border)    // 0.5 (body) * [2/16]  +  0.025 (border)
+
+        Frame "BACKDROP" "TabMenuTitleBG" INHERITS "NewTabMenuSectionBG" {}
+
+        Frame "TEXT" "TabMenuTitleText" INHERITS "NewTabMenuTabText" {Text "Title",}
+    }
+
+
+    // 5. Bottom Left Body 1 //
+    Frame "FRAME" "TabMenuBodyLeft" {
+        Width 0.234375, // 0.5 (body) * [15/32]
+        Height 0.375,   // 0.5 (body) * [12/16]
+        SetPoint TOPLEFT, "TabMenu", TOPLEFT, 0.040625, -0.11875, // 0.5 (body) * [1/32]  +  0.025 (border)    // 0.5 (body) * [3/16]  +  0.025 (border)
+
+        Frame "BACKDROP" "TabMenuBodyLeftBG" INHERITS "NewTabMenuSectionBG" {}
+
+        Frame "TEXT" "TabMenuBodyLeftText" INHERITS "NewTabMenuBodyText" {Text "Lorem ipsum dolor sit."}
+    }
+
+
+    // 6. Right Body 2 //
+    Frame "FRAME" "TabMenuBodyRight" {
+        Width 0.234375, // 0.5 (body) * [15/32]
+        Height 0.40625, // 0.5 (body) * [13/16]
+        SetPoint TOPLEFT, "TabMenu", TOPLEFT, 0.275, -0.0875, // 0.5 (body) * [16/32]  +  0.025 (border)    // 0.5 (body) * [2/16]  +  0.025 (border)
+
+        Frame "BACKDROP" "TabMenuBodyRightBG" INHERITS "NewTabMenuSectionBG" {}
+
+        Frame "TEXT" "TabMenuBodyRightText" INHERITS "NewTabMenuBodyText" {Text "Lorem ipsum dolor sit."}
+    }
+}

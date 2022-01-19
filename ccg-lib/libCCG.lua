@@ -57,11 +57,11 @@ libCCG.card = setmetatable({
         -- Init supaTable functionality --
         local tbl = table2.supaTable:new(o)
 
-        -- Set read only properties --
+        -- supaTable: Set read-only properties --
         tbl:setReadOnly(true, "IsCard")
         tbl:setReadOnly(true, "Instances")
 
-        -- Auto-update War3 Frame art in every instance --
+        -- supaTable: Auto-update War3 Frame art in every instance --
         tbl:watchProp(function(t,k,v)
             for x, d in pairs(t.Instances) do
                 d:setBackBg(v) end

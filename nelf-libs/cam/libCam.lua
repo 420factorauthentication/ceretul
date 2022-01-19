@@ -355,7 +355,7 @@ libCam.camViewButton = setmetatable({
     --== Read-Only ==--
     Trig,  -- Trigger for Button FrameEvents.
 
-    --== Trig Automatically Updates Whenever These Properties Are Changed ==--
+    --== Auto-Update Trig On Change ==--
     Button,   -- Name of War3 Frame. When clicked, applies all of the below.
     CamView,  -- camView to apply.
     Fog,      -- terrainFog to apply.

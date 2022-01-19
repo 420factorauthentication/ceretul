@@ -90,7 +90,7 @@ Frame "GLUETEXTBUTTON" "NewTabMenuTab" {
     Frame "HIGHLIGHT" "TabMenuTabMouseover" INHERITS "NewTabMenuMouseover" {}
 
     ButtonText "TabMenuTabText0",
-    Frame "TEXT" "TabMenuTabText0" INHERITS "NewTabMenuTabText" {Text "Tab 0",}
+    Frame "TEXT" "TabMenuTabText0" INHERITS "NewTabMenuTabText" {Text " ",}
 }
 
 
@@ -175,7 +175,7 @@ Frame "FRAME" "TabMenu" {
             SetPoint TOPLEFT, "TabMenuTabBar", TOPLEFT, 0, 0,
 
             ButtonText "TabMenuTabText0",
-            Frame "TEXT" "TabMenuTabText0" INHERITS "NewTabMenuTabText" {Text "Tab 0",}
+            Frame "TEXT" "TabMenuTabText0" INHERITS "NewTabMenuTabText" {Text " ",}
         }
 
 
@@ -183,7 +183,7 @@ Frame "FRAME" "TabMenu" {
             SetPoint TOPLEFT, "TabMenuTabBar", TOPLEFT, 0.1171875, 0, // 0.5 (body) * [15/16] * [1/4]
 
             ButtonText "TabMenuTabText1",
-            Frame "TEXT" "TabMenuTabText1" INHERITS "NewTabMenuTabText" {Text "Tab 1",}
+            Frame "TEXT" "TabMenuTabText1" INHERITS "NewTabMenuTabText" {Text " ",}
         }
 
 
@@ -191,7 +191,7 @@ Frame "FRAME" "TabMenu" {
             SetPoint TOPLEFT, "TabMenuTabBar", TOPLEFT, 0.234375, 0, // 0.5 * 15/16 (TabMenuTabBar) * [2/4]
 
             ButtonText "TabMenuTabText2",
-            Frame "TEXT" "TabMenuTabText2" INHERITS "NewTabMenuTabText" {Text "Tab 2",}
+            Frame "TEXT" "TabMenuTabText2" INHERITS "NewTabMenuTabText" {Text " ",}
         }
 
 
@@ -199,7 +199,7 @@ Frame "FRAME" "TabMenu" {
             SetPoint TOPLEFT, "TabMenuTabBar", TOPLEFT, 0.3515625, 0, // 0.5 * 15/16 (TabMenuTabBar) * [3/4]
 
             ButtonText "TabMenuTabText3",
-            Frame "TEXT" "TabMenuTabText3" INHERITS "NewTabMenuTabText" {Text "Tab 3",}
+            Frame "TEXT" "TabMenuTabText3" INHERITS "NewTabMenuTabText" {Text " ",}
         }
 
         Frame "GLUETEXTBUTTON" "TabMenuTab4" INHERITS WITHCHILDREN "NewTabMenuTab" {
@@ -207,7 +207,7 @@ Frame "FRAME" "TabMenu" {
             SetPoint TOPLEFT, "TabMenuTabBar", TOPLEFT, 0.46875, 0, // 0.5 * 15/16 (TabMenuTabBar) * [4/4]
 
             ButtonText "TabMenuTabText4",
-            Frame "TEXT" "TabMenuTabText4" INHERITS "NewTabMenuTabText" {Text "Tab 4",}
+            Frame "TEXT" "TabMenuTabText4" INHERITS "NewTabMenuTabText" {Text " ",}
         }
     }
 
@@ -237,7 +237,7 @@ Frame "FRAME" "TabMenu" {
 
         Frame "BACKDROP" "TabMenuTitleBG" INHERITS "NewTabMenuSectionBG" {}
 
-        Frame "TEXT" "TabMenuTitleText" INHERITS "NewTabMenuTabText" {Text "Title",}
+        Frame "TEXT" "TabMenuTitleText" INHERITS "NewTabMenuTabText" {Text " ",}
     }
 
 
@@ -249,7 +249,7 @@ Frame "FRAME" "TabMenu" {
 
         Frame "BACKDROP" "TabMenuBodyLeftBG" INHERITS "NewTabMenuSectionBG" {}
 
-        Frame "TEXT" "TabMenuBodyLeftText" INHERITS "NewTabMenuBodyText" {Text "Lorem ipsum dolor sit."}
+        Frame "TEXT" "TabMenuBodyLeftText" INHERITS "NewTabMenuBodyText" {Text " "}
     }
 
 
@@ -261,6 +261,6 @@ Frame "FRAME" "TabMenu" {
 
         Frame "BACKDROP" "TabMenuBodyRightBG" INHERITS "NewTabMenuSectionBG" {}
 
-        Frame "TEXT" "TabMenuBodyRightText" INHERITS "NewTabMenuBodyText" {Text "Lorem ipsum dolor sit."}
+        Frame "TEXT" "TabMenuBodyRightText" INHERITS "NewTabMenuBodyText" {Text " "}
     }
 }

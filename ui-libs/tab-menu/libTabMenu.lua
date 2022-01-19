@@ -5,6 +5,9 @@ local libTabMenu = {}
 -- < Modules > --
 local table2 = require "table2"
 
+-- < References > --
+local constTabMenu = require "constTabMenu"
+
 
 
 --====================================================--
@@ -47,145 +50,172 @@ libTabMenu.tabMenuEntry = setmetatable({
 libTabMenu.tabMenu = setmetatable({
     Name = "New Tab Menu",
 
-    --== Frame Dimensions (in scale of 0.8:0.6) ==--
-    MenuSize   = 0.5,   -- Side length of square menu frame. Doesn't include borders.
-    BorderSize = 0.05,  -- Width of one border edge.
+    --== Auto-Update On Change ==--
+    MenuSize   = 0.5,   -- Side length of square menu frame. Doesn't include borders. In scale of [0.8:0.6]
+    BorderSize = 0.05,  -- Width of one border edge. In scale of [0.8:0.6]
+    Entries    = {},    -- tabMenuEntry class objects
 
     --== Read-Only ==--
-    Frame,           -- Framehandle for main parent frame
-    Entries   = {},  -- tabMenuEntry class objects
-    CurrEntry = 0,   -- Currently clicked tab number
-    SliderPos = 0,   -- Number of leftmost tab in current slider position
-
-    --== Read-Only Constants: Ratios of MenuSize ==--
-    CloseButtonSizeFactor = (1/16),
-    TabBarWidthFactor     = (15/16),
-    TabBarHeightFactor    = (1/16),
-    TabWidthFactor        = ((1/4) * (15/16)),
-    TabHeightFactor       = (1/16),
-    SectionWidthFactor    = (15/32),
-    TitleHeightFactor     = (1/16),
-    LeftBodyHeightFactor  = (12/16),
-    RightBodyHeightFactor = (13/16),
-    VertPaddingFactor     = (1/16),
-    HorizPaddingFactor    = (1/32),
-
-    --== Read-Only Constants: Tab Bar Slider ==--
-    TabBarSliderMin = 0,
-    TabBarSliderMax = 100,
-
+    Frame,                -- Framehandle for main parent frame
+    TabSliderTrig,        -- Trigger to scroll tab buttons with slider
+    TabButtonTrigs = {},  -- Triggers to update text when tab buttons are clicked
+    TabSkip        = 0,   -- Number of leftmost tab in current slider position
+    TabCurrent     = 0,   -- Number of currently clicked tab button (0-4). Up to 5 tab buttons visible at one time. 
+    TabPosOffset   = 0,   -- How much the position/width of tabs are adjusted to simulate scrolling
+    
     --=============--
     -- Constructor --
     --=============--
     new = function(self, o)
         o = o or {}
-        if (o.Entries == nil) then o.Instances = {} end
-        setmetatable(o, {__index = self})
-        local tbl = table2.supaTable:new(o)
 
-        -- Set read only properties --
-        tbl:setReadOnly(true, "Frame")
-        tbl:setReadOnly(true, "Entries")
-        tbl:setReadOnly(true, "CurrEntry")
-        tbl:setReadOnly(true, "SliderPos")
-        
-        tbl:setReadOnly(true, "CloseButtonSizeFactor")
-        tbl:setReadOnly(true, "TabBarWidthFactor")
-        tbl:setReadOnly(true, "TabBarHeightFactor")
-        tbl:setReadOnly(true, "TabWidthFactor")
-        tbl:setReadOnly(true, "TabHeightFactor")
-        tbl:setReadOnly(true, "SectionWidthFactor")
-        tbl:setReadOnly(true, "TitleHeightFactor")
-        tbl:setReadOnly(true, "LeftBodyHeightFactor")
-        tbl:setReadOnly(true, "RightBodyHeightFactor")
-        tbl:setReadOnly(true, "VertPaddingFactor")
-        tbl:setReadOnly(true, "HorizPaddingFactor")
-        
-        tbl:setReadOnly(true, "TabBarSliderMin")
-        tbl:setReadOnly(true, "TabBarSliderMax")
+        -- Init empty table properties --
+        if (o.Entries == nil) then o.Entries = {} end
+        if (o.TabButtonTrigs == nil) then o.TabTrigs = {} end
+
+        -- Init default params and methods --
+        setmetatable(o, {__index = self})
+
+        -- Init supatable functionality --
+        local tbl = table2.supaTable:new(o)
         
         -- Create Frame --
         tbl.Frame = BlzCreateFrame("TabMenu", BlzGetOriginFrame(ORIGIN_FRAME_GAME_UI, 0), 0, 0)
-        local tabMenu = libTabMenu.tabMenu:new({Frame = framehandle})
-        BlzFrameSetAbsPoint(framehandle, FRAMEPOINT_TOPLEFT, 0.02, 0.553)
+        BlzFrameSetAbsPoint(tbl.Frame, FRAMEPOINT_TOPLEFT, 0.02, 0.553)
 
-        local tabBar = BlzFrameGetChild(tbl.Frame, 2)
-        local tab0 = BlzFrameGetChild(tabBar, 0)
-        local tab1 = BlzFrameGetChild(tabBar, 1)
-        local tab2 = BlzFrameGetChild(tabBar, 2)
-        local tab3 = BlzFrameGetChild(tabBar, 3)
-        local tab4 = BlzFrameGetChild(tabBar, 4)
+        -- Init all frame children --
+        tbl:updateFrameSizes()
+        tbl:updateTabBar()
 
-        local textTab0 = BlzFrameGetChild(tab0, 0)
-        local textTab1 = BlzFrameGetChild(tab1, 0)
-        local textTab2 = BlzFrameGetChild(tab2, 0)
-        local textTab3 = BlzFrameGetChild(tab3, 0)
-        local textTab4 = BlzFrameGetChild(tab4, 0)
-
-        local textTitle = BlzFrameGetChild( BlzFrameGetChild(tbl.Frame,4) , 1)
-        local textLeftBody = BlzFrameGetChild( BlzFrameGetChild(tbl.Frame,5) , 1)
-        local textRightBody = BlzFrameGetChild( BlzFrameGetChild(tbl.Frame,6) , 1)
-
-        -- Init tab labels --
-        BlzFrameSetText(textTab0, tbl.Entries[1].Label)
-        BlzFrameSetText(textTab1, tbl.Entries[2].Label)
-        BlzFrameSetText(textTab2, tbl.Entries[3].Label)
-        BlzFrameSetText(textTab3, tbl.Entries[4].Label)
-        BlzFrameSetText(textTab4, tbl.Entries[5].Label)
-
-        -- Functionality: Tab Bar Slider --
-        local sliderTrig = CreateTrigger()
-        BlzTriggerRegisterFrameEvent(sliderTrig, framehandle, FRAMEEVENT_SLIDER_VALUE_CHANGED)
-        TriggerAddAction(sliderTrig, function()
-
-            -- Tab Bar can fit 4 tabs. Don't adjust tab bar if 4 or less tabs. --
-            if (#tbl.Entries < 5) then return end
-
-            -- Quick maffs --
-            local sliderValue = BlzGetTriggerFrameValue()
-            local sliderRange = math.abs(tbl.TabBarSliderMax - tbl.TabBarSliderMin)
-            local sliderRangePerTab = sliderRange / (#tbl.Entries - 4)
-            local tabWidth = tbl.MenuSize * tbl.TabWidthFactor
-            local tabHeight = tbl.MenuSize * tbl.TabHeightFactor
-            local tabOffset = tabWidth * ((sliderValue % sliderRangePerTab) / sliderRangePerTab)
-            tbl.sliderPos = math.floor(sliderValue / sliderRangePerTab)
-
-            -- Adjust tabs width and position to simulate scrolling --
-            BlzFrameSetSize(tab0, (tabWidth - tabOffset), tabHeight)
-            BlzFrameSetSize(tab4, (tabWidth - tabOffset), tabHeight)
-            BlzFrameSetPoint(tab1, FRAMEPOINT_TOPLEFT, tabBar, FRAMEPOINT_TOPLEFT, (tabOffset + (tabWidth * 0)), 0)
-            BlzFrameSetPoint(tab2, FRAMEPOINT_TOPLEFT, tabBar, FRAMEPOINT_TOPLEFT, (tabOffset + (tabWidth * 1)), 0)
-            BlzFrameSetPoint(tab3, FRAMEPOINT_TOPLEFT, tabBar, FRAMEPOINT_TOPLEFT, (tabOffset + (tabWidth * 2)), 0)
-            BlzFrameSetPoint(tab4, FRAMEPOINT_TOPLEFT, tabBar, FRAMEPOINT_TOPLEFT, (tabOffset + (tabWidth * 3)), 0)
-
-            -- Set tab labels --
-            BlzFrameSetText(textTab0, tbl.Entries[tbl.sliderPos + 1].Label)
-            BlzFrameSetText(textTab1, tbl.Entries[tbl.sliderPos + 2].Label)
-            BlzFrameSetText(textTab2, tbl.Entries[tbl.sliderPos + 3].Label)
-            BlzFrameSetText(textTab3, tbl.Entries[tbl.sliderPos + 4].Label)
-            BlzFrameSetText(textTab4, tbl.Entries[tbl.sliderPos + 5].Label)
-        end)
-
-        -- Functionality: Tab Buttons --
-        
-
-        -- Init: select first tab --
-        BlzFrameClick(tab0)
+        -- supaTable: Set read-only properties --
+        tbl:setReadOnly(true, "Frame")
+        tbl:setReadOnly(true, "TabSliderTrig")
+        tbl:setReadOnly(true, "TabButtonTrigs")
+        tbl:setReadOnly(true, "TabSkip")
+        tbl:setReadOnly(true, "TabCurrent")
+        tbl:setReadOnly(true, "TabPosOffset")
 
         -- Return --
         return tbl
     end,
 
-    --========================================--
-    -- tabMenu:newEntry()                     --
-    --                                        --
-    -- Inits a new TabMenuEntry class object. --
-    -- Links it to a new button at the top.   --
-    --========================================--
-    newEntry = function()
-        local newTabMenuEntry = libTabMenu.tabMenuEntry:new()
-        local tabButton = BlzCreateFrame("NewTabMenuTab", tbl.Frame, 0, 0)
-    end
+    --<< PRIVATE METHODS >>--
+    --=============================================================--
+    -- tabMenu:updateTabBar()                                      --
+    --                                                             --
+    -- Creates a TabBar button for each entry.                     --
+    -- Updates TabBar button labels and triggers.                  --
+    -- If currently selected entry is updated, updates text boxes. --
+    --=============================================================--
+    updateTabBar = function(self)
+        local tabBar = BlzFrameGetChild(self.Frame, 2)
+        local textTitle = BlzFrameGetChild( BlzFrameGetChild(self.Frame,4) , 1)
+        local textLeftBody = BlzFrameGetChild( BlzFrameGetChild(self.Frame,5) , 1)
+        local textRightBody = BlzFrameGetChild( BlzFrameGetChild(self.Frame,6) , 1)
+
+        local tabWidth = self.MenuSize * constTabMenu.tabWidth
+        local tabHeight = self.MenuSize * constTabMenu.tabHeight
+        local existingTabCount = BlzFrameGetChildrenCount(tabBar)
+        local newTabPosition = 0
+
+        -- Update existing tab button labels --
+        for i=1, existingTabCount do
+            local tab = BlzFrameGetChild(tabBar, i-1)
+            BlzFrameSetText(tab, self.Entries[i].Label)
+        end
+
+        -- Dont create new tab buttons if already 5 --
+        if (existingTabCount >= 5) then return end
+
+        local createNewTab = function(width, pos, label)
+            local newTab = BlzCreateFrame("NewTabMenuTab", tabBar, 0, 0)
+            local textTab = BlzFrameGetChild(newTab, 0)
+            BlzFrameSetSize(newTab, width, tabHeight)
+            BlzFrameSetPoint(newTab, FRAMEPOINT_TOPLEFT, tabBar, FRAMEPOINT_TOPLEFT, pos, 0)
+            BlzFrameSetText(textTab, label)
+            existingTabCount = existingTabCount + 1
+            newTabPosition = newTabPosition + width
+        end
+
+        -- Create Tab Button 0 if needed --
+        if (existingTabCount == 0) then
+            createNewTab((tabWidth - self.TabPosOffset), newTabPosition, self.Entries[1].Label) end
+
+        -- Create Tab Buttons 1-4 if needed --
+        for i=(existingTabCount+1), 5 do
+            createNewTab(tabWidth, newTabPosition, self.Entries[i].Label) end
+    end,
+
+    --=============================================--
+    -- tabMenu:updateTabBarSlider()                --
+    --                                             --
+    -- Updates the trigger for the tab bar slider. --
+    --=============================================--
+    updateTabBarSlider = function(self)
+        local tabBar = BlzFrameGetChild(self.Frame, 2)
+        local tabSlider = BlzFrameGetChild(self.Frame, 3)
+        
+        -- Create new trigger --
+        self.TabSliderTrig = CreateTrigger()
+        BlzTriggerRegisterFrameEvent(self.TabSliderTrig, tabSlider, FRAMEEVENT_SLIDER_VALUE_CHANGED)
+        TriggerAddAction(self.TabSliderTrig, function()
+
+            -- Slider does nothing if 4 or less tabs --
+            local tabCount = BlzFrameGetChildrenCount(tabBar)
+            if (tabCount < 5) then return end
+
+            -- Quick maffs --
+            local tabWidth = self.MenuSize * constTabMenu.tabWidth
+            local tabHeight = self.MenuSize * constTabMenu.tabHeight
+            local sliderValue = BlzGetTriggerFrameValue()
+            local sliderRangePerTab = constTabMenu.sliderRange / (tabCount - 4)
+
+            -- Manually set read-only values (supaTable) --
+            getmetatable(self).__index.TabPosOffset = tabWidth * ((sliderValue % sliderRangePerTab) / sliderRangePerTab)
+            getmetatable(self).__index.TabSkip = math.floor(sliderValue / sliderRangePerTab)
+
+            -- Adjust width and position of tabs to simulate scrolling --
+            if (tabCount > 0) then
+                local tab0 = BlzFrameGetChild(tabBar, 0)
+                BlzFrameSetSize(tab0, (tabWidth - self.TabPosOffset), tabHeight)
+            end
+
+            if (tabCount >= 5) then
+                local tab4 = BlzFrameGetChild(tabBar, 4)
+                BlzFrameSetSize(tab4, self.TabPosOffset, tabHeight)
+            end
+
+            for i=2, tabCount do
+                local tab = BlzFrameGetChild(tabBar, i-1)
+                BlzFrameSetPoint(tab, FRAMEPOINT_TOPLEFT, tabBar, FRAMEPOINT_TOPLEFT, (self.TabPosOffset + (tabWidth * (i-2))), 0)
+            end
+
+            -- Set tab labels --
+            for i=1, tabCount do
+                local tab = BlzFrameGetChild(tabBar, i-1)
+                local textTab = BlzFrameGetChild(tab, 0)
+                local tabNum = self.TabSkip + (i-1)
+                BlzFrameSetText(textTab, self.Entries[tabNum].Label)
+            end
+        end)
+
+        -- Clean up old trigger and replace it with new trigger --
+        if (self.TabSliderTrig ~= nil) then
+            DestroyTrigger(self.TabSliderTrig)
+            self.TabSliderTrig = nil
+        end
+        self.TabSliderTrig = sliderTrig
+    end,
+
+
+
+    --===============================================--
+    -- tabMenu:updateFrameSizes()                    --
+    --                                               --
+    -- Updates all frame children to match MenuSize. --
+    --===============================================--
+
+
     },{
 
     },{
@@ -198,6 +228,6 @@ libTabMenu.tabMenu = setmetatable({
 
 
 
---=========--
+--=============--
 return libTabMenu
---=========--
+--=============--

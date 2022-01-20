@@ -89,8 +89,8 @@ Frame "GLUETEXTBUTTON" "NewTabMenuTab" {
     ControlMouseOverHighlight "TabMenuTabMouseover",
     Frame "HIGHLIGHT" "TabMenuTabMouseover" INHERITS "NewTabMenuMouseover" {}
 
-    ButtonText "TabMenuTabText0",
-    Frame "TEXT" "TabMenuTabText0" INHERITS "NewTabMenuTabText" {Text " ",}
+    ButtonText "TabMenuTabText",
+    Frame "TEXT" "TabMenuTabText" INHERITS "NewTabMenuTabText" {Text " ",}
 }
 
 
@@ -173,41 +173,26 @@ Frame "FRAME" "TabMenu" {
 
         Frame "GLUETEXTBUTTON" "TabMenuTab0" INHERITS WITHCHILDREN "NewTabMenuTab" {
             SetPoint TOPLEFT, "TabMenuTabBar", TOPLEFT, 0, 0,
-
-            ButtonText "TabMenuTabText0",
-            Frame "TEXT" "TabMenuTabText0" INHERITS "NewTabMenuTabText" {Text " ",}
         }
 
 
         Frame "GLUETEXTBUTTON" "TabMenuTab1" INHERITS WITHCHILDREN "NewTabMenuTab" {
             SetPoint TOPLEFT, "TabMenuTabBar", TOPLEFT, 0.1171875, 0, // 0.5 (body) * [15/16] * [1/4]
-
-            ButtonText "TabMenuTabText1",
-            Frame "TEXT" "TabMenuTabText1" INHERITS "NewTabMenuTabText" {Text " ",}
         }
 
 
         Frame "GLUETEXTBUTTON" "TabMenuTab2" INHERITS WITHCHILDREN "NewTabMenuTab" {
             SetPoint TOPLEFT, "TabMenuTabBar", TOPLEFT, 0.234375, 0, // 0.5 * 15/16 (TabMenuTabBar) * [2/4]
-
-            ButtonText "TabMenuTabText2",
-            Frame "TEXT" "TabMenuTabText2" INHERITS "NewTabMenuTabText" {Text " ",}
         }
 
 
         Frame "GLUETEXTBUTTON" "TabMenuTab3" INHERITS WITHCHILDREN "NewTabMenuTab" {
             SetPoint TOPLEFT, "TabMenuTabBar", TOPLEFT, 0.3515625, 0, // 0.5 * 15/16 (TabMenuTabBar) * [3/4]
-
-            ButtonText "TabMenuTabText3",
-            Frame "TEXT" "TabMenuTabText3" INHERITS "NewTabMenuTabText" {Text " ",}
         }
 
         Frame "GLUETEXTBUTTON" "TabMenuTab4" INHERITS WITHCHILDREN "NewTabMenuTab" {
-            Width 0, //Initially hidden; changes with slider
+            Width 0, //Initially 0; changes with slider
             SetPoint TOPLEFT, "TabMenuTabBar", TOPLEFT, 0.46875, 0, // 0.5 * 15/16 (TabMenuTabBar) * [4/4]
-
-            ButtonText "TabMenuTabText4",
-            Frame "TEXT" "TabMenuTabText4" INHERITS "NewTabMenuTabText" {Text " ",}
         }
     }
 

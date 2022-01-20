@@ -4,9 +4,17 @@ local constTabMenu = {}
 
 
 
-------------------------------------------------
--- Frame Children Sizes As Ratios Of MenuSize --
-------------------------------------------------
+----------------------------------
+-- Menu Size (in 0.8:0:6 scale) --
+----------------------------------
+constTabMenu.menuSize = 0.5 --not including borders
+constTabMenu.borderSize = 0.05 --size of one edge
+
+
+
+-------------------------------------------------
+-- Frame Children Sizes As Ratios Of Menu Size --
+-------------------------------------------------
 constTabMenu.closeButtonWidth  = (1/16)
 constTabMenu.closeButtonHeight = (1/16)
 

@@ -30,7 +30,6 @@ libTabMenu.tabMenuEntry = setmetatable({
         o = o or {}
         setmetatable(o, {__index = self})
         local tbl = table2.supaTable:new(o)
-
         return tbl
     end,
     },{
@@ -56,11 +55,12 @@ libTabMenu.tabMenu = setmetatable({
 
     --== Read-Only ==--
     Frame,                -- Framehandle for main parent frame
+    ButtonCurrent,        -- Number of currently clicked tab button (0-4). Up to 5 tab buttons visible at one time.
+    EntryCurrent,         -- Entry number of currently clicked tab button.
     TabSliderTrig,        -- Trigger to scroll tab buttons with slider
     TabButtonTrigs = {},  -- Triggers to update text when tab buttons are clicked
-    TabSkip        = 0,   -- Number of leftmost tab in current slider position, starting from 0.
-    TabCurrent     = 0,   -- Number of currently clicked tab button (0-4). Up to 5 tab buttons visible at one time. 
     TabPosOffset   = 0,   -- How much the position/width of tabs are adjusted to simulate scrolling
+    TabSkip        = 0,   -- Number of entry for leftmost tab in current slider position, starting from 0.
     
     --=============--
     -- Constructor --
@@ -99,11 +99,12 @@ libTabMenu.tabMenu = setmetatable({
 
         -- supaTable: Set read-only properties --
         tbl:setReadOnly(true, "Frame")
+        tbl:setReadOnly(true, "ButtonCurrent")
+        tbl:setReadOnly(true, "EntryCurrent")
         tbl:setReadOnly(true, "TabSliderTrig")
         tbl:setReadOnly(true, "TabButtonTrigs")
-        tbl:setReadOnly(true, "TabSkip")
-        tbl:setReadOnly(true, "TabCurrent")
         tbl:setReadOnly(true, "TabPosOffset")
+        tbl:setReadOnly(true, "TabSkip")
 
         -- Return --
         return tbl
@@ -142,9 +143,11 @@ libTabMenu.tabMenu = setmetatable({
     --                                            --
     -- Unhides a button for each entry (up to 5). --
     -- Updates button label text.                 --
+    -- Hides slider if less than 4 buttons.       --
     --============================================--
     updateTabBar = function(self)
         local tabBar = BlzFrameGetChild(self.Frame, 2)
+        local tabSlider = BlzFrameGetChild(self.Frame, 3)
 
         -- Unhide tab buttons and update labels as entries increase --
         for i=1, math.min(5, #self.Entries) do
@@ -160,6 +163,13 @@ libTabMenu.tabMenu = setmetatable({
             local tab = BlzFrameGetChild(tabBar, i-1)
             BlzFrameSetVisible(tab, false)
         end
+
+        -- Hide slider if less than 4 buttons --
+        if (#self.Entries < 5) then
+            BlzFrameSetVisible(tabSlider, false)
+        else
+            BlzFrameSetVisible(tabSlider, true)
+        end
     end,
 
     --================================================--
@@ -168,17 +178,35 @@ libTabMenu.tabMenu = setmetatable({
     -- Updates text to show currently selected Entry. --
     --================================================--
     updateText = function(self)
+        local textTitle = BlzFrameGetChild(BlzFrameGetChild(self.Frame, 4), 1)
+        local textLeftBody = BlzFrameGetChild(BlzFrameGetChild(self.Frame, 5), 1)
+        local textRightBody = BlzFrameGetChild(BlzFrameGetChild(self.Frame, 6), 1)
 
+        if (self.EntryCurrent ~= nil) then
+            BlzFrameSetText(textTitle, self.Entries[self.EntryCurrent].Title)
+            BlzFrameSetText(textLeftBody, self.Entries[self.EntryCurrent].Desc1)
+            BlzFrameSetText(textRightBody, self.Entries[self.EntryCurrent].Desc2)
+        end
     end,
 
     --==================================--
     -- tabMenu:initTabButtons()         --
     --                                  --
-    -- Create triggers that change text --
+    -- Update triggers that change text --
     -- when tab buttons are clicked.    --
     --==================================--
     initTabButtons = function(self)
-
+        local tabBar = BlzFrameGetChild(self.Frame, 2)
+        for i=1, 5 do
+            local tabButton = BlzFrameGetChild(tabBar, i-1)
+            self.TabButtonTrigs[i] = CreateTrigger()
+            BlzTriggerRegisterFrameEvent(self.TabButtonTrigs[i], tabButton, FRAMEEVENT_CONTROL_CLICK)
+            TriggerAddAction(self.TabButtonTrigs[i], function()
+                self.ButtonCurrent = i-1
+                self.EntryCurrent = self.TabSkip + i-1
+                self:updateText()
+            end
+        end
     end,
 
     --=============================================--
@@ -218,6 +246,7 @@ libTabMenu.tabMenu = setmetatable({
             local sliderRangePerTab = constTabMenu.sliderRange / (#self.Entries - 4)
 
             -- Manually set read-only values (supaTable) --
+            local actualTable = getmetatable(self).__index
             getmetatable(self).__index.TabPosOffset = tabWidth * ((sliderValue % sliderRangePerTab) / sliderRangePerTab)
             getmetatable(self).__index.TabSkip = math.floor(sliderValue / sliderRangePerTab)
 

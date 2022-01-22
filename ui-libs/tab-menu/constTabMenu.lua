@@ -8,7 +8,7 @@ local constTabMenu = {}
 -- Menu Size (in 0.8:0:6 scale) --
 ----------------------------------
 constTabMenu.menuSize = 0.5 --not including borders
-constTabMenu.borderSize = 0.05 --size of one edge
+constTabMenu.borderSize = 0.025 --size of one edge
 
 
 
@@ -18,23 +18,23 @@ constTabMenu.borderSize = 0.05 --size of one edge
 constTabMenu.closeButtonWidth  = (1/16)
 constTabMenu.closeButtonHeight = (1/16)
 
-constTabMenu.tabBarWidth       = 1 - constTabMenu.CloseButtonWidth
-constTabMenu.tabBarHeight      = constTabMenu.CloseButtonHeight
+constTabMenu.tabBarWidth       = 1 - constTabMenu.closeButtonWidth
+constTabMenu.tabBarHeight      = constTabMenu.closeButtonHeight
 
-constTabMenu.tabWidth          = (1/4) * constTabMenu.TabBarWidth
-constTabMenu.tabHeight         = constTabMenu.TabBarHeight
+constTabMenu.tabWidth          = (1/4) * constTabMenu.tabBarWidth
+constTabMenu.tabHeight         = constTabMenu.tabBarHeight
 
 constTabMenu.titleWidth        = (15/32)
 constTabMenu.titleHeight       = (1/16)
 
-constTabMenu.leftBodyWidth     = constTabMenu.TitleWidth
+constTabMenu.leftBodyWidth     = constTabMenu.titleWidth
 constTabMenu.leftBodyHeight    = (12/16)
 
-constTabMenu.rightBodyWidth    = constTabMenu.TitleWidth
+constTabMenu.rightBodyWidth    = constTabMenu.titleWidth
 constTabMenu.rightBodyHeight   = (13/16)
 
-constTabMenu.paddingHorizontal = (1 - constTabMenu.LeftBodyWidth - constTabMenu.RightBodyWidth) / 2
-constTabMenu.paddingVertical   = (1 - constTabMenu.TabBarHeight - constTabMenu.RightBodyHeight) / 2
+constTabMenu.paddingHorizontal = (1 - constTabMenu.leftBodyWidth - constTabMenu.rightBodyWidth) / 2
+constTabMenu.paddingVertical   = (1 - constTabMenu.tabBarHeight - constTabMenu.rightBodyHeight) / 2
 
 
 

@@ -160,7 +160,7 @@ Frame "FRAME" "TabMenu" {
 
 
     // 2. Top Row Of Tabs //
-    Frame "TEXTAREA" "TabMenuTabBar" {
+    Frame "FRAME" "TabMenuTabBar" {
         Width 0.46875,  // 0.5 (body) * [15/16]
         Height 0.03125, // 0.5 (body) * [1/16]
 

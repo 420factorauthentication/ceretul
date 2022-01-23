@@ -28,16 +28,18 @@ Frame "TEXT" "NewTabMenuTabText" {
     SetAllPoints,
     UseActiveContext,
     DecorateFileNames,
-    FrameFont "EscMenuTextFont", 0.013, "",
+    
     FontJustificationH JUSTIFYCENTER,
     FontJustificationV JUSTIFYMIDDLE,
-    FontJustificationOffset 0.0005 -0.002,  // uncentered bandaid fix
+    FontJustificationOffset  0.0005  -0.002, //uncentered bandaid fix
+    FontShadowOffset         0.002   -0.002,
+
     FontFlags "NOWRAP",
-    FontColor 0.99 0.827 0.0705 1.0,
-    FontHighlightColor 1.0 1.0 1.0 1.0,
-    FontDisabledColor 0.5 0.5 0.5 1.0,
-	FontShadowColor 0.0 0.0 0.0 0.9,
-    FontShadowOffset 0.002 -0.002,
+    FrameFont "EscMenuTextFont", 0.013, "",
+    FontColor           0.99   0.827   0.0705   1.0,
+    FontHighlightColor  1.0    1.0     1.0      1.0,
+    FontDisabledColor   0.5    0.5     0.5      1.0,
+	FontShadowColor     0.0    0.0     0.0      0.9,
 }
 
 
@@ -46,16 +48,18 @@ Frame "TEXT" "NewTabMenuBodyText" {
     SetAllPoints,
     UseActiveContext,
     DecorateFileNames,
-    FrameFont "EscMenuTextFont", 0.011, "",
+    
     FontJustificationH JUSTIFYLEFT,
     FontJustificationV JUSTIFYTOP,
-    FontJustificationOffset 0.015625 -0.015625, // 0.5 (body) * [1/32]
+    FontJustificationOffset  0.015625  -0.015625, // 0.5 (body) * [1/32]
+    FontShadowOffset         0.002     -0.002,
+    
     FontFlags "NOWRAP",
-    FontColor 0.99 0.827 0.0705 1.0,
-    FontHighlightColor 1.0 1.0 1.0 1.0,
-    FontDisabledColor 0.5 0.5 0.5 1.0,
-	FontShadowColor 0.0 0.0 0.0 0.9,
-    FontShadowOffset 0.002 -0.002,
+    FrameFont "EscMenuTextFont", 0.011, "",
+    FontColor            0.99   0.827   0.0705   1.0,
+    FontHighlightColor   1.0    1.0     1.0      1.0,
+    FontDisabledColor    0.5    0.5     0.5      1.0,
+	FontShadowColor      0.0    0.0     0.0      0.9,
 }
 
 
@@ -91,6 +95,23 @@ Frame "GLUETEXTBUTTON" "NewTabMenuTab" {
 
     ButtonText "TabMenuTabText",
     Frame "TEXT" "TabMenuTabText" INHERITS "NewTabMenuTabText" {Text " ",}
+}
+
+
+Frame "TEXTAREA" "NewTabMenuTextArea" {
+    SetAllPoints,
+    DecorateFileNames,
+
+    FrameFont "MasterFont", 0.011,"",
+    TextAreaLineGap         0.001,
+    TextAreaLineHeight      0.011,
+    TextAreaInset           0.015625, // 0.5 * [1/32]
+//  TextAreaMaxLines        32,
+
+    TextAreaScrollBar "TabMenuTextAreaScrollBar",
+    Frame "SCROLLBAR" "TabMenuTextAreaScrollBar" INHERITS WITHCHILDREN "EscMenuScrollBarTemplate" {
+        SetPoint TOPRIGHT, "NewTabMenuTextArea", TOPRIGHT, 0.015, 0,
+    }
 }
 
 
@@ -234,7 +255,7 @@ Frame "FRAME" "TabMenu" {
 
         Frame "BACKDROP" "TabMenuBodyLeftBG" INHERITS "NewTabMenuSectionBG" {}
 
-        Frame "TEXT" "TabMenuBodyLeftText" INHERITS "NewTabMenuBodyText" {Text " "}
+        Frame "TEXTAREA" "TabMenuBodyLeftTextArea" INHERITS WITHCHILDREN "NewTabMenuTextArea" {}
     }
 
 
@@ -246,6 +267,6 @@ Frame "FRAME" "TabMenu" {
 
         Frame "BACKDROP" "TabMenuBodyRightBG" INHERITS "NewTabMenuSectionBG" {}
 
-        Frame "TEXT" "TabMenuBodyRightText" INHERITS "NewTabMenuBodyText" {Text " "}
+        Frame "TEXTAREA" "TabMenuBodyRightTextArea" INHERITS WITHCHILDREN "NewTabMenuTextArea" {}
     }
 }

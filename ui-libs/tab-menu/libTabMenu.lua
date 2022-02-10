@@ -48,7 +48,7 @@ libTabMenu.tabMenuEntry = setmetatable({
 libTabMenu.tabMenu = setmetatable({
     Name = "New Tab Menu",
 
-    --== Auto-Update On Change ==--
+    --== Auto-Update Functionality On Change ==--
     Entries   = {},     -- tabMenuEntry class objects
     BoardMode = false,  -- If game has a leaderboard, set this to true, to avoid blocking buttons.
 
@@ -72,26 +72,16 @@ libTabMenu.tabMenu = setmetatable({
         if (o.Entries == nil) then o.Entries = {} end
         if (o.TabButtonTrigs == nil) then o.TabButtonTrigs = {} end
 
-        -- Init default params and methods --
-        setmetatable(o, {__index = self})
+        -- Init default vars and methods --
         o.EntryCount = #o.Entries
+        o.Frame = BlzCreateFrame("TabMenu", BlzGetOriginFrame(ORIGIN_FRAME_GAME_UI, 0), 0, 0)
+        BlzFrameSetAbsPoint(o.Frame, FRAMEPOINT_TOPLEFT, 0.02, 0.553)
+        setmetatable(o, {__index = self})
 
-        -- Init supatable functionality --
+        -- This class is a supaTable --
         local tbl = table2.supaTable:new(o)
-        
-        -- Create Frame --
-        tbl.Frame = BlzCreateFrame("TabMenu", BlzGetOriginFrame(ORIGIN_FRAME_GAME_UI, 0), 0, 0)
-        BlzFrameSetAbsPoint(tbl.Frame, FRAMEPOINT_TOPLEFT, 0.02, 0.553)
 
-        -- Init all frame children --
-        tbl:updateCloseButtonPos()
-        tbl:updateTabLabels()
-        tbl:updateTabCount()
-        tbl:updateTabSlider()
-        tbl:initTabSliderTrig()
-        tbl:initTabButtonTrigs()
-
-        -- supaTable: Auto-update frame --
+        -- Auto-update frame (supaTable) --
         tbl:watchProp(function(t,k,v)
             getmetatable(tbl).__index.EntryCount = #tbl.Entries --Set read-only prop (supaTable)
             tbl:updateTabLabels()
@@ -104,7 +94,7 @@ libTabMenu.tabMenu = setmetatable({
             tbl:updateCloseButtonPos()
         end, "BoardMode", false)
 
-        -- supaTable: Set read-only properties --
+        -- Set read-only properties (supaTable) --
         tbl:setReadOnly(true, "Frame")
         tbl:setReadOnly(true, "ButtonCurrent")
         tbl:setReadOnly(true, "EntryCurrent")
@@ -113,6 +103,14 @@ libTabMenu.tabMenu = setmetatable({
         tbl:setReadOnly(true, "TabButtonTrigs")
         tbl:setReadOnly(true, "TabPosOffset")
         tbl:setReadOnly(true, "TabSkip")
+
+        -- Main --
+        tbl:updateCloseButtonPos()
+        tbl:updateTabLabels()
+        tbl:updateTabCount()
+        tbl:updateTabSlider()
+        tbl:initTabSliderTrig()
+        tbl:initTabButtonTrigs()
 
         -- Return --
         return tbl
@@ -220,6 +218,8 @@ libTabMenu.tabMenu = setmetatable({
     -- Updates trigger for scrolling through tabs with slider. --
     --=========================================================--
     initTabSliderTrig = function(self)
+        local tbl = getmetatable(self).__index  --Used to set read-only props (supaTable)
+
         local tabBar    = BlzFrameGetChild(self.Frame, 2)
         local tabSlider = BlzFrameGetChild(self.Frame, 3)
         
@@ -243,9 +243,8 @@ libTabMenu.tabMenu = setmetatable({
             local oldTabSkip = self.TabSkip
             local sliderValue = BlzGetTriggerFrameValue()
             local sliderRangePerTab = constTabMenu.sliderRange / (self.EntryCount - 4)
-            local actualTable = getmetatable(self).__index
-            actualTable.TabPosOffset = tabWidth * ((sliderValue % sliderRangePerTab) / sliderRangePerTab)
-            actualTable.TabSkip = math.floor(sliderValue / sliderRangePerTab)
+            tbl.TabPosOffset = tabWidth * ((sliderValue % sliderRangePerTab) / sliderRangePerTab)
+            tbl.TabSkip = math.floor(sliderValue / sliderRangePerTab)
 
             -- Adjust width and position of tabs to simulate scrolling --
             local tabWidth0 = tabWidth - self.TabPosOffset
@@ -275,10 +274,8 @@ libTabMenu.tabMenu = setmetatable({
 
         -- Clean up old trigger and replace it with new trigger --
         if (self.TabSliderTrig ~= nil) then
-            DestroyTrigger(self.TabSliderTrig)
-            self.TabSliderTrig = nil
-        end
-        self.TabSliderTrig = newTrig
+            DestroyTrigger(self.TabSliderTrig) end
+        tbl.TabSliderTrig = newTrig
     end,
 
     
@@ -289,26 +286,26 @@ libTabMenu.tabMenu = setmetatable({
     --================================================================--
     initTabButtonTrigs = function(self)
         local tabBar = BlzFrameGetChild(self.Frame, 2)
-        for i=1, 5 do
 
+        -- Used to set read-only props (supaTable) --
+        local tbl = getmetatable(self).__index
+        local tblTrigs = getmetatable(self.TabButtonTrigs).__index
+        
+        for i=1, 5 do
             -- Clean up old trigger --
             if (self.TabButtonTrigs[i] ~= nil) then
                 DestroyTrigger(self.TabButtonTrigs[i])
-                self.TabButtonTrigs[i] = nil
             end
 
             -- Create new trigger that runs on button click --
             local tabButton = BlzFrameGetChild(tabBar, i-1)
-            self.TabButtonTrigs[i] = CreateTrigger()
+            tblTrigs[i] = CreateTrigger()
             BlzTriggerRegisterFrameEvent(self.TabButtonTrigs[i], tabButton, FRAMEEVENT_CONTROL_CLICK)
             TriggerAddAction(self.TabButtonTrigs[i], function()
 
-                -- Update read-only properties (supaTable) --
-                local actualTable = getmetatable(self).__index
-                actualTable.ButtonCurrent = i-1
-                actualTable.EntryCurrent = self.TabSkip + i
-
-                -- Display text for currently selected entry --
+                -- Update current selection --
+                tbl.ButtonCurrent = i-1
+                tbl.EntryCurrent = self.TabSkip + i
                 self:updateText()
             end)
         end

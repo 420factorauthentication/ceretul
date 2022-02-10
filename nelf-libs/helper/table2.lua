@@ -41,7 +41,7 @@ table2.supaTable = setmetatable({
         -- If its already a supaTable, just return that table --
         o = o or {}
         if (type(o) ~= "table") then
-            error("SupaTable: invalid input")
+            print("ERROR: supaTable invalid input")
         elseif (o._IsSupaTable == true) then
             return o
         end
@@ -129,7 +129,7 @@ table2.supaTable = setmetatable({
                 runFuncs(t._UnmappedFuncs, t, k, v)
 
             else
-                error("Tried to edit read-only value: " .. k)
+                print("WARNING: Tried to edit read-only value: " .. k)
             end
         end
 
@@ -200,7 +200,11 @@ table2.supaTable = setmetatable({
     --=====================================================================--
     unwatchProp = function(self, func, prop, checkSubTables)
         if (checkSubTables == nil) then checkSubTables = true end
-        local tbl = getmetatable(self).__index
+        
+        local tbl = self
+        if (self._IsSupaTable == true) then
+            tbl = getmetatable(self).__index
+        end
 
         -- If enabled, convert subtables to supaTables and unwatch their properties too --
         if (checkSubTables == true) then
@@ -355,7 +359,7 @@ table2.supaTable = setmetatable({
             newT = getmetatable(newT).__index
             infiniteLoopCounter = infiniteLoopCounter + 1
             if (infiniteLoopCounter >= 42069) then
-                error("supaTable pairs() infinite loop")
+                print("ERROR: supaTable pairs() infinite loop")
             end
         end
     
@@ -379,7 +383,7 @@ table2.supaTable = setmetatable({
             newT = getmetatable(newT).__index
             infiniteLoopCounter = infiniteLoopCounter + 1
             if (infiniteLoopCounter >= 42069) then
-                error("supaTable ipairs() infinite loop")
+                print("ERROR: supaTable ipairs() infinite loop")
             end
         end
     

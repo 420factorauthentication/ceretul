@@ -1,0 +1,32 @@
+
+// -- FRAMES TO TEST STUFF -------------------------------------------------------
+
+Frame "BUTTON" "Box" {
+    Width 0.3,
+    Height 0.3,
+
+    Frame "BACKDROP" "BoxBg" {
+        DecorateFileNames,
+
+        SetAllPoints,
+
+        BackdropTileBackground,
+        BackdropBlendAll,
+        BackdropBackground "EscMenuBackground",
+    }
+}
+
+Frame "BUTTON" "Box2" {
+    Width 0.3,
+    Height 0.3,
+
+    Frame "BACKDROP" "BoxBg2" {
+        DecorateFileNames,
+
+        SetAllPoints,
+
+        BackdropTileBackground,
+        BackdropBlendAll,
+        BackdropBackground "QuestDialogNormalBackground",
+    }
+}

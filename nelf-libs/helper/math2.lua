@@ -84,15 +84,20 @@ end
 -- A container for a 3D vector and related methods. --
 --==================================================--
 math2.vec3 = setmetatable({
-    Name = "New Vec3",
     x = 0,
     y = 0,
     z = 0,
 
-    --=============--
-    -- Constructor --
-    --=============--
+    --===============--
+    -- Constructor   --
+    --   x: real = 0 --
+    --   y: real = 0 --
+    --   z: real = 0 --
+    --===============--
     new = function(self, x, y, z)
+        x = x or 0
+        y = y or 0
+        z = z or 0
         o = {}
         setmetatable(o, {__index = self})
         o.x = assert(tonumber(x), "ERROR vec3:new(): invalid x input")
@@ -133,6 +138,47 @@ math2.vec3 = setmetatable({
     --==========================================--
     length = function(self)
         return math.sqrt(self.x * self.x + self.y * self.y + self.z * self.z)
+    end,
+
+    --================================================--
+    -- vec3:normalize()                               --
+    --                                                --
+    -- Modifies this vector to have a magnitude of 1. --
+    --================================================--
+    normalize = function(self)
+        local length = self:length()
+        if (length ~= 0) then
+            self.x = self.x / length
+            self.y = self.y / length
+            self.z = self.z / length
+        end
+    end,
+
+    --==================================================================--
+    -- vec3:normalized()                                                --
+    --                                                                  --
+    -- Returns a new vector with the same direction and magnitude of 1. --
+    --==================================================================--
+    normalized = function(self)
+        local length = self:length()
+        local new = {}
+        local newMeta = {}
+        setmetatable(new, newMeta)
+
+        -- Preserve other added properties --
+        for k, v in pairs(self) do
+            new[k] = v end
+        for k, v in pairs(getmetatable(self)) do
+            newMeta[k] = v end
+
+        -- Stop the universe from imploding from dividing by 0 --
+        if (length ~= 0) then
+            new.x = self.x / length
+            new.y = self.y / length
+            new.z = self.z / length
+        end
+
+        return new
     end,
 
     --=========================================--

@@ -51,10 +51,10 @@ libCCG.card = setmetatable({
         if (o.DefaultCosts == nil) then o.DefaultCosts = {} end
         if (o.DefaultEffects == nil) then o.DefaultEffects = {} end
 
-        -- Init default params and methods --
+        -- init default vars and methods --
         setmetatable(o, {__index = self})
 
-        -- Init supaTable functionality --
+        -- This class is a supaTable --
         local tbl = table2.supaTable:new(o)
 
         -- supaTable: Set read-only properties --
@@ -141,9 +141,9 @@ libCCG.cardInstance = setmetatable({
     --=====================--
     new = function(self, card)
         if (card.IsCard ~= true) then
-            error("error: libCCG.cardInstance constructor expects libCCG.card") end
+            print("error: libCCG.cardInstance constructor expects libCCG.card") end
 
-        -- Init default params and methods --
+        -- init default vars and methods --
         local o = setmetatable({
             Card        = card,
             CurrReqs    = card.DefaultReqs,
@@ -151,7 +151,7 @@ libCCG.cardInstance = setmetatable({
             CurrEffects = card.DefaultEffects
         }, {__index = self})
 
-        -- Init supaTable functionality --
+        -- This class is a supaTable --
         local tbl = table2.supaTable:new(o)
         
         -- Create and position War3 Frames --

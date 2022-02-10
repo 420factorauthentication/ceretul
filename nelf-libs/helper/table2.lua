@@ -153,36 +153,34 @@ table2.supaTable = setmetatable({
     --===============================================================================================================--
     watchProp = function(self, func, prop, checkSubTables)
         if (checkSubTables == nil) then checkSubTables = true end
-        local tbl = getmetatable(self).__index
+        local tbl = getmetatable(self).__index  --Used to set read-only props
 
-        -- If enabled, convert subtables to supaTables and watch their properties too --
         if (checkSubTables == true) then
-            -- If a property is specified, only check that property for subtables --
-            if (prop ~= nil) then
-                if (type(tbl[prop]) == "table") then
-                    tbl[prop] = table2.supaTable:new(tbl[prop])
-                    tbl[prop]:watchProp(func, tbl[prop], true)
+            if (prop ~= nil) then                      --If a child prop is specified and is a table,
+                if (type(self[prop]) == "table") then  --watch all grandchildren props of that table
+                    tbl[prop] = table2.supaTable:new(self[prop])
+                    for key, val in pairs(getmetatable(self[prop]).__index) do  --for loop on the actual table of child prop,
+                        self[prop]:watchProp(func, key, true)                   --not the supaTable proxy
+                    end
                 end
-            -- If a property isnt specified, check all properties for subtables --
-            else
-                for k, v in pairs(tbl) do
+            else  -- If a child property isnt specified, check all children
+                for k, v in pairs(tbl) do  --for loop on the actual table, not the supaTable proxy
                     if (type(v) == "table") then
-                        tbl[k] = table2.supaTable:new(tbl[k])
-                        tbl[k]:watchProp(func, v, true)
+                        tbl[k] = table2.supaTable:new(v)
+                        for key, val in pairs(getmetatable(tbl[k]).__index) do  --for loop on the actual table of child prop,
+                            self[k]:watchProp(func, key, true)                  --not the supaTable proxy
+                        end
                     end
                 end
             end
         end
         
-        -- If a property is specified, add a key-{function,flags} pair to _MappedFuncs --
-        if (prop ~= nil) then
-            -- Since the _MappedFuncs table is full of subtables, make sure that subtable exists --
-            if (self._MappedFuncs[prop] == nil) then
+        if (prop ~= nil) then  --If a property is specified, add a key-{function,flags} pair to _MappedFuncs
+            if (self._MappedFuncs[prop] == nil) then  --Init empty table if doesnt exist
                 self._MappedFuncs[prop] = {}
             end
             table.insert(self._MappedFuncs[prop], {func = func, checkSubTables = checkSubTables})
-        -- If a property isnt specified, append {function,flags} to _UnmappedFuncs --
-        else 
+        else  --If a property isnt specified, append {function,flags} to _UnmappedFuncs
             table.insert(self._UnmappedFuncs, {func = func, checkSubTables = checkSubTables})
         end
     end,
@@ -200,24 +198,16 @@ table2.supaTable = setmetatable({
     --=====================================================================--
     unwatchProp = function(self, func, prop, checkSubTables)
         if (checkSubTables == nil) then checkSubTables = true end
-        
-        local tbl = self
-        if (self._IsSupaTable == true) then
-            tbl = getmetatable(self).__index
-        end
 
-        -- If enabled, convert subtables to supaTables and unwatch their properties too --
-        if (checkSubTables == true) then
-            -- If a property is specified, only check that property for subtables --
-            if (prop ~= nil) then
-                if (type(tbl[prop] == "table")) then
-                    table2.supaTable.unwatchProp(tbl[prop], func, nil, true)
+        if (checkSubTables == true) then  --If a child prop is specified and is a supaTable,
+            if (prop ~= nil) then         --unwatch func from all grandchildren of that child
+                if (type(self[prop]) == "table") and (self[prop]._IsSupaTable == true) then
+                    self[prop]:unwatchProp(func, nil, true)
                 end
-            -- If a property isnt specified, check all properties for subtables --
-            else
-                for k, v in pairs(tbl) do
-                    if (type(v) == "table") then
-                        table2.supaTable.unwatchProp(v, func, nil, true)
+            else --If a child isnt specified, unwatch func from all grandchildren of every child
+                for k, v in pairs(getmetatable(self).__index) do  --for loop on the actual table, not the supaTable proxy
+                    if (type(v) == "table") and (v._IsSupaTable == true) then
+                        v:unwatchProp(func, nil, true)
                     end
                 end
             end
@@ -228,8 +218,9 @@ table2.supaTable = setmetatable({
             return
         end
 
-        -- If a function is specified, remove function from _MappedFuncs or _UnmappedFuncs --
-        -- If a function isnt specified, remove all functions from _MappedFuncs or _UnmappedFuncs --
+        -- Helper func:
+        -- If a function is specified, remove function from _MappedFuncs or _UnmappedFuncs
+        -- If a function isnt specified, remove all functions from _MappedFuncs or _UnmappedFuncs
         local function clearFunc(funcTbl, func0)
             if (func0 == nil) then
                 for k, v in pairs(funcTbl) do
@@ -245,12 +236,11 @@ table2.supaTable = setmetatable({
             end
         end
 
-        -- If a property is specified, unregister functions for only that property --
+        -- Unwatch the funcs --
         if (prop ~= nil) then
             if (self._MappedFuncs[prop] ~= nil) then
                 clearFunc(self._MappedFuncs[prop], func)
             end
-        -- If a property isnt specified, unregister functions for all properties --
         else
             clearFunc(self._UnmappedFuncs, func)
         end
@@ -271,51 +261,47 @@ table2.supaTable = setmetatable({
     setReadOnly = function(self, readOnly, prop, checkSubTables, watch)
         if (checkSubTables == nil) then checkSubTables = true end
         if (watch == nil) then watch = true end
-        local tbl = getmetatable(self).__index
+        local tbl = getmetatable(self).__index  --Used to set read-only props
         
-        -- If flagged, set properties to read-only --
         if (readOnly == true) then
-            -- If a property is specified, set it to read-only --
-            -- If enabled, convert subtables to supaTables and set their props to read-only --
+            -- If a child property is specified, set it to read-only --
+            -- If enabled, convert child to a supaTable and set all grandchildren props of that child to read-only --
             if (prop ~= nil) then
                 self._ReadOnly[prop] = true
-                if (type(tbl[prop]) == "table") and (checkSubTables == true) then
-                    tbl[prop] = table2.supaTable:new(tbl[prop])
-                    tbl[prop]:setReadOnly(true, nil, true, watch)
+                if (type(self[prop]) == "table") and (checkSubTables == true) then
+                    tbl[prop] = table2.supaTable:new(self[prop])
+                    self[prop]:setReadOnly(true, nil, true, watch)
                 end
-            -- If a property isnt specified, set all properties to read-only --
-            -- If enabled, convert subtables to supaTables and set their props to read-only --
+            -- If a property isnt specified, set all child properties to read-only --
+            -- If enabled, convert all children to supaTables and set all grandchildren to read-only --
             else
-                for k, v in pairs(tbl) do
-                    if (type(v) ~= "function") then
-                        self._ReadOnly[k] = true
-                        if (type(v) == "table") and (checkSubTables == true) then
-                            tbl[k] = table2.supaTable:new(v)
-                            tbl[k]:setReadOnly(true, nil, true, watch)
-                        end
+                for k, v in pairs(tbl) do  --for loop on the actual table, not the supaTable proxy
+                    self._ReadOnly[k] = true
+                    if (type(v) == "table") and (checkSubTables == true) then
+                        tbl[k] = table2.supaTable:new(v)
+                        tbl[k]:setReadOnly(true, nil, true, watch)
                     end
                 end
             end
-        -- If flagged, set properties to not read-only --
         else
-            -- If a property is specified, set it to not read-only --
-            -- If enabled, check subTables too: --
-            --   If a subtable isnt a supaTable, then its already not read-only --
-            --   If a subtable is a supaTable, then set it to not read-only --
+            -- If a child property is specified, set it to not read-only --
+            -- If enabled, check grandchildren of that child too: --
+            --   If a grandchild isnt a supaTable, then its already not read-only --
+            --   If a grandchild is a supaTable, then set it to not read-only --
             if (prop ~= nil) then
                 self._ReadOnly[prop] = nil
-                if (type(tbl[prop]) == "table") and (checkSubTables == true) and (tbl[prop]._IsSupaTable == true) then
-                    tbl[prop]:setReadOnly(false, nil, true, watch)
+                if (type(self[prop]) == "table") and (checkSubTables == true) and (self[prop]._IsSupaTable == true) then
+                    self[prop]:setReadOnly(false, nil, true, watch)
                 end
-            -- If a property isnt specified, set all properties to not read-only --
-            -- If enabled, check subTables too: --
-            --   If a subtable isnt a supaTable, then its already not read-only --
-            --   If a subtable is a supaTable, then set it to not read-only --
+            -- If a child isnt specified, set all children to not read-only --
+            -- If enabled, check grandchildren of all children too: --
+            --   If a grandchild isnt a supaTable, then its already not read-only --
+            --   If a grandchild is a supaTable, then set it to not read-only --
             else
-                for k, v in pairs(tbl) do
+                for k, v in pairs(tbl) do  --for loop on the actual table, not the supaTable proxy
                     self._ReadOnly[k] = nil
                     if (type(v) == "table") and (checkSubTables == true) and (v._IsSupaTable == true) then
-                        tbl[k]:setReadOnly(false, nil, true, watch)
+                        self[k]:setReadOnly(false, nil, true, watch)
                     end
                 end
             end

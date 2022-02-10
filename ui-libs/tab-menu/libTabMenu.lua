@@ -81,19 +81,6 @@ libTabMenu.tabMenu = setmetatable({
         -- This class is a supaTable --
         local tbl = table2.supaTable:new(o)
 
-        -- Auto-update frame (supaTable) --
-        tbl:watchProp(function(t,k,v)
-            getmetatable(tbl).__index.EntryCount = #tbl.Entries --Set read-only prop (supaTable)
-            tbl:updateTabLabels()
-            tbl:updateTabCount()
-            tbl:updateTabSlider()
-            tbl:updateText()
-        end, "Entries", true)
-
-        tbl:watchProp(function(t,k,v)
-            tbl:updateCloseButtonPos()
-        end, "BoardMode", false)
-
         -- Set read-only properties (supaTable) --
         tbl:setReadOnly(true, "Frame")
         tbl:setReadOnly(true, "ButtonCurrent")
@@ -103,6 +90,24 @@ libTabMenu.tabMenu = setmetatable({
         tbl:setReadOnly(true, "TabButtonTrigs")
         tbl:setReadOnly(true, "TabPosOffset")
         tbl:setReadOnly(true, "TabSkip")
+
+        -- Auto-update frame (supaTable) --
+        tbl:watchProp(function(t,k,v)
+            print("started EntriesWatchProp")
+
+            getmetatable(t).__index.EntryCount = #t.Entries --Set read-only prop (supaTable)
+            -- t:updateTabLabels()
+            -- t:updateTabCount()
+            -- t:updateTabSlider()
+            -- t:updateText()
+
+            -- print(t.EntryCount)
+            print("ended EntriesWatchProp")
+        end, "Entries", true)
+
+        tbl:watchProp(function(t,k,v)
+            t:updateCloseButtonPos()
+        end, "BoardMode", false)
 
         -- Main --
         tbl:updateCloseButtonPos()
@@ -162,13 +167,16 @@ libTabMenu.tabMenu = setmetatable({
         end
     end,
 
-    --=================================================--
-    -- tabMenu:updateTabCount()                        --
-    --                                                 --
-    -- If less than 5 entries, hides some tab buttons. --
-    --=================================================--
+    --================================================--
+    -- tabMenu:updateTabCount()                       --
+    --                                                --
+    -- If less than 5 entries, hides some tab buttons --
+    -- and resets tab width to default.               --
+    --================================================--
     updateTabCount = function(self)
         local tabBar = BlzFrameGetChild(self.Frame, 2)
+        local tabWidth  = constTabMenu.menuSize * constTabMenu.tabWidth
+        local tabHeight = constTabMenu.menuSize * constTabMenu.tabHeight
 
         for i=1, math.min(5, self.EntryCount) do
             local tab = BlzFrameGetChild(tabBar, i-1)
@@ -179,6 +187,14 @@ libTabMenu.tabMenu = setmetatable({
             local tab = BlzFrameGetChild(tabBar, i-1)
             BlzFrameSetVisible(tab, false)
         end
+
+        for i=1, 4 do
+            local tab = BlzFrameGetChild(tabBar, i-1)
+            BlzFrameSetSize(tab, tabWidth, tabHeight)
+        end
+
+        local tab4 = BlzFrameGetChild(tabBar, 4)
+        BlzFrameSetSize(tab4, 0, tabHeight)
     end,
 
     --==========================================--

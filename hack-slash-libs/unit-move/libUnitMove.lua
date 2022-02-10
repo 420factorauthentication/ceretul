@@ -104,6 +104,10 @@ libUnitMove.unitMove2D = setmetatable({
 
     initKeyPressTrigs = function(self)
         if (self.PlayerId == nil) then return end
+
+        -- Used to set read-only properties (supaTable) --
+        local tbl = getmetatable(self).__index
+        local tblTrigs = getmetatable(self.Trigs).__index
         
         -- For each event type --
         local inputs = {
@@ -125,14 +129,12 @@ libUnitMove.unitMove2D = setmetatable({
             end
 
             if (GetPlayerSlotState(Player(self.PlayerId)) == PLAYER_SLOT_STATE_PLAYING) then
-                -- Used to set read-only props (supaTable) --
-                local tbl = getmetatable(self).__index
-                local tblTrigs = getmetatable(self.Trigs).__index
-
                 -- New KeyPress trig --
                 tblTrigs[v .. "Press"] = CreateTrigger()
                 BlzTriggerRegisterPlayerKeyEvent(self.Trigs[v .. "Press"], Player(self.PlayerId), self["Key" .. v], 0, true)
                 TriggerAddAction(self.Trigs[v .. "Press"], function()
+
+                    -- Update movement calculations --
                     if (self["Is" .. v] == true) then return end
                     tbl["Is" .. v] = true
                     self:updateMovementVector()
@@ -149,6 +151,8 @@ libUnitMove.unitMove2D = setmetatable({
                 tblTrigs[v .. "Release"] = CreateTrigger()
                 BlzTriggerRegisterPlayerKeyEvent(self.Trigs[v .. "Release"], Player(self.PlayerId), self["Key" .. v], 0, false)
                 TriggerAddAction(self.Trigs[v .. "Release"], function()
+
+                    -- Update movement calculations --
                     tbl["Is" .. v] = false
                     self:updateMovementVector()
 

@@ -229,8 +229,9 @@ libTabMenu.tabMenu = setmetatable({
         local tab3 = BlzFrameGetChild(tabBar, 3)
         local tab4 = BlzFrameGetChild(tabBar, 4)
 
-        local tabWidth  = constTabMenu.menuSize * constTabMenu.tabWidth
         local tabHeight = constTabMenu.menuSize * constTabMenu.tabHeight
+        local tabWidth  = constTabMenu.menuSize * constTabMenu.tabWidth
+        local minWidth  = 0.02
         
         -- Update tabs every time slider changes --
         local newTrig = CreateTrigger()
@@ -265,6 +266,19 @@ libTabMenu.tabMenu = setmetatable({
             BlzFrameSetPoint(tab2, FRAMEPOINT_TOPLEFT, tabBar, FRAMEPOINT_TOPLEFT, tabPosX2, 0)
             BlzFrameSetPoint(tab3, FRAMEPOINT_TOPLEFT, tabBar, FRAMEPOINT_TOPLEFT, tabPosX3, 0)
             BlzFrameSetPoint(tab4, FRAMEPOINT_TOPLEFT, tabBar, FRAMEPOINT_TOPLEFT, tabPosX4, 0)
+
+            --- Hide tabs if too small, to avoid display quirks --
+            if (tabWidth0 < minWidth) then
+                BlzFrameSetVisible(tab0, false)
+            else
+                BlzFrameSetVisible(tab0, true)
+            end
+
+            if (tabWidth4 < minWidth) then
+                BlzFrameSetVisible(tab4, false)
+            else
+                BlzFrameSetVisible(tab4, true)
+            end
             
             -- If scrolled to a new button, update tab labels --
             if (self.TabSkip ~= oldTabSkip) then

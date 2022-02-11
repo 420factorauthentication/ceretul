@@ -186,12 +186,11 @@ libTabMenu.tabMenu = setmetatable({
         end
     end,
 
-    --================================================--
-    -- tabMenu:updateTabCount()                       --
-    --                                                --
-    -- If less than 5 entries, hides some tab buttons --
-    -- and resets tab width and position to default.  --
-    --================================================--
+    --=================================================--
+    -- tabMenu:updateTabCount()                        --
+    --                                                 --
+    -- If less than 5 entries, hides some tab buttons. --
+    --=================================================--
     updateTabCount = function(self)
         local tabBar = BlzFrameGetChild(self.Frame, 2)
         local tabWidth  = constTabMenu.menuSize * constTabMenu.tabWidth
@@ -206,27 +205,35 @@ libTabMenu.tabMenu = setmetatable({
             local tab = BlzFrameGetChild(tabBar, i-1)
             BlzFrameSetVisible(tab, false)
         end
-
-        for i=1, 4 do
-            local tab = BlzFrameGetChild(tabBar, i-1)
-            BlzFrameSetSize(tab, tabWidth, tabHeight)
-        end
-
-        -- todo: reset position --
-
-        local tab4 = BlzFrameGetChild(tabBar, 4)
-        BlzFrameSetSize(tab4, 0, tabHeight)
     end,
 
-    --==========================================--
-    -- tabMenu:updateTabSlider()                --
-    --                                          --
-    -- Hides tab slider if less than 4 buttons. --
-    --==========================================--
+    --=========================================--
+    -- tabMenu:updateTabSlider()               --
+    --                                         --
+    -- If less than 5 entries, hide tab slider --
+    -- and reset tab width and position.       --
+    --=========================================--
     updateTabSlider = function(self)
+        local tabBar    = BlzFrameGetChild(self.Frame, 2)
         local tabSlider = BlzFrameGetChild(self.Frame, 3)
+        local tabWidth  = constTabMenu.menuSize * constTabMenu.tabWidth
+        local tabHeight = constTabMenu.menuSize * constTabMenu.tabHeight
+
         if (self.EntryCount < 5) then
             BlzFrameSetVisible(tabSlider, false)
+            BlzFrameSetValue(tabSlider, 0)
+
+            for i=1, 4 do
+                local tab = BlzFrameGetChild(tabBar, i-1)
+                local tabPosX = tabWidth * (i-1)
+                BlzFrameSetSize(tab, tabWidth, tabHeight)
+                BlzFrameSetPoint(tab, FRAMEPOINT_TOPLEFT, tabBar, FRAMEPOINT_TOPLEFT, tabPosX, 0)
+            end
+
+            local tab4 = BlzFrameGetChild(tabBar, 4)
+            local tabPosX4 = tabWidth * 4
+            BlzFrameSetSize(tab4, 0, tabHeight)
+            BlzFrameSetPoint(tab4, FRAMEPOINT_TOPLEFT, tabBar, FRAMEPOINT_TOPLEFT, tabPosX4, 0)
         else
             BlzFrameSetVisible(tabSlider, true)
         end

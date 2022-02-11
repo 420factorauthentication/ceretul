@@ -61,23 +61,23 @@ libUnitMove.unitMove2D = setmetatable({
 
         -- Auto-update movement functionality (supaTable) --
         tbl:watchProp(function(t,k,v)
-            t:initKeyPressTrigs()
+            tbl:initKeyPressTrigs()
         end, "PlayerId", false)
 
         tbl:watchProp(function(t,k,v)
-            t:initKeyPressTrigs()
+            tbl:initKeyPressTrigs()
         end, "KeyUp", false)
 
         tbl:watchProp(function(t,k,v)
-            t:initKeyPressTrigs()
+            tbl:initKeyPressTrigs()
         end, "KeyLeft", false)
 
         tbl:watchProp(function(t,k,v)
-            t:initKeyPressTrigs()
+            tbl:initKeyPressTrigs()
         end, "KeyDown", false)
 
         tbl:watchProp(function(t,k,v)
-            t:initKeyPressTrigs()
+            tbl:initKeyPressTrigs()
         end, "KeyRight", false)
 
         -- Main --

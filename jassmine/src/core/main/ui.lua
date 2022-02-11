@@ -166,7 +166,7 @@ local specs = function()
     local removeTabMenuEntry = CreateTrigger()
     BlzTriggerRegisterPlayerKeyEvent(removeTabMenuEntry, Player(0), OSKEY_SPACE, 0, false)
     TriggerAddAction(removeTabMenuEntry, function()
-        newTabMenu.Entries[newTabMenu.EntryCount] = nil
+        newTabMenu.Entries[1] = nil
         print("deleted a tab entry")
     end)
 end

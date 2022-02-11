@@ -13,6 +13,7 @@ local playerController = libUnitMove.unitMove2D:new({
 
 --== TEST: FORCEUICANCEL() WORKAROUND TO DRAG SELECTION DISABLING KEYPRESSES ==--
 --== WORKS BUT CAN BUG OUT IF SPAMMING KEYPRESSES + MOUSEDOWNS ==--
+--== ALSO CAUSES PROBLEMS OPENING BLIZZARD MENUS ==--
 EnableDragSelect(false, false)
 
 local dragTrig = CreateTrigger()

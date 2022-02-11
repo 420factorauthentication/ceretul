@@ -56,7 +56,7 @@ libTabMenu.tabMenu = setmetatable({
     Frame,                -- Framehandle for main parent frame
     ButtonCurrent,        -- Number of currently clicked tab button (0-4). Up to 5 tab buttons visible at one time.
     EntryCurrent,         -- Entries array index of currently clicked tab button, starting from 1.
-    EntryCount,           -- Size of Entries array.
+    EntryCount,           -- Size of Entries array. (not the supaTable proxy)
     TabSliderTrig,        -- Trigger to scroll tab buttons with slider
     TabButtonTrigs = {},  -- Triggers to update text when tab buttons are clicked
     TabPosOffset   = 0,   -- How much the position/width of tabs are adjusted to simulate scrolling
@@ -93,20 +93,20 @@ libTabMenu.tabMenu = setmetatable({
 
         -- Auto-update frame (supaTable) --
         tbl:watchProp(function(t,k,v)
-            print("started EntriesWatchProp")
+            tbl:sortEntries()
 
-            getmetatable(t).__index.EntryCount = #t.Entries --Set read-only prop (supaTable)
-            -- t:updateTabLabels()
-            -- t:updateTabCount()
-            -- t:updateTabSlider()
-            -- t:updateText()
-
-            -- print(t.EntryCount)
-            print("ended EntriesWatchProp")
+            -- Update EntryCount, using actual Entries table (not supaTable proxy) --
+            getmetatable(tbl).__index.EntryCount = #getmetatable(tbl.Entries).__index
+            print(tbl.EntryCount)
+            
+            tbl:updateTabLabels()
+            tbl:updateTabCount()
+            tbl:updateTabSlider()
+            tbl:updateText()
         end, "Entries", true)
 
         tbl:watchProp(function(t,k,v)
-            t:updateCloseButtonPos()
+            tbl:updateCloseButtonPos()
         end, "BoardMode", false)
 
         -- Main --
@@ -122,6 +122,25 @@ libTabMenu.tabMenu = setmetatable({
     end,
 
     --<< PRIVATE METHODS >>--
+    --====================================--
+    -- tabMenu:sortEntries()              --
+    --                                    --
+    -- Formats the Entries table so that  --
+    -- keys are integers starting from 1. --
+    --====================================--
+    sortEntries = function(self)
+        -- Actual Entries, not supaTable proxy --
+        local tblEntries = getmetatable(self.Entries).__index  
+
+        local newTblEntries = {}
+        for k, v in pairs(tblEntries) do
+            table.insert(newTblEntries, v)
+        end
+
+        -- Set actual Entries --
+        getmetatable(self.Entries).__index = newTblEntries
+    end,
+    
     --=================================================--
     -- tabMenu:updateCloseButtonPos()                  --
     --                                                 --
@@ -171,7 +190,7 @@ libTabMenu.tabMenu = setmetatable({
     -- tabMenu:updateTabCount()                       --
     --                                                --
     -- If less than 5 entries, hides some tab buttons --
-    -- and resets tab width to default.               --
+    -- and resets tab width and position to default.  --
     --================================================--
     updateTabCount = function(self)
         local tabBar = BlzFrameGetChild(self.Frame, 2)
@@ -192,6 +211,8 @@ libTabMenu.tabMenu = setmetatable({
             local tab = BlzFrameGetChild(tabBar, i-1)
             BlzFrameSetSize(tab, tabWidth, tabHeight)
         end
+
+        -- todo: reset position --
 
         local tab4 = BlzFrameGetChild(tabBar, 4)
         BlzFrameSetSize(tab4, 0, tabHeight)

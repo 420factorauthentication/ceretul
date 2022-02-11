@@ -146,7 +146,7 @@ table2.supaTable = setmetatable({
     --   checkSubTables: boolean = true                                                                              --
     --                                                                                                               --
     -- Watches a property in this table. Whenever it's changed at all, calls the specified function.                 --
-    -- Passes (t, k, v) to the called function.                                                                      --
+    -- Passes (t, k, v) to the called function. NOTE: Watch out for what (t, k, v) is when a subtable is watched.    --
     -- If prop == nil, that function is called whenever anything in this table is changed.                           --
     -- All registered functions are kept in a table. Multiple functions are allowed.                                 --
     -- If checkSubTables is true, recursively converts all subtables to supaTables and watches all their properties. --

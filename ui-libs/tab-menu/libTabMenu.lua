@@ -57,6 +57,7 @@ libTabMenu.tabMenu = setmetatable({
     ButtonCurrent,        -- Number of currently clicked tab button (0-4). Up to 5 tab buttons visible at one time.
     EntryCurrent,         -- Entries array index of currently clicked tab button, starting from 1.
     EntryCount,           -- Size of Entries array. (not the supaTable proxy)
+    CloseButtonTrig,      -- Trigger to hide frame when close button is clicked
     TabSliderTrig,        -- Trigger to scroll tab buttons with slider
     TabButtonTrigs = {},  -- Triggers to update text when tab buttons are clicked
     TabPosOffset   = 0,   -- How much the position/width of tabs are adjusted to simulate scrolling
@@ -116,6 +117,7 @@ libTabMenu.tabMenu = setmetatable({
         tbl:updateTabSlider()
         tbl:initTabSliderTrig()
         tbl:initTabButtonTrigs()
+        tbl:initCloseButtonTrig()
 
         -- Return --
         return tbl
@@ -367,6 +369,25 @@ libTabMenu.tabMenu = setmetatable({
                 self:updateText()
             end)
         end
+    end,
+
+    --===============================================================--
+    -- tabMenu:initCloseButtonTrig()                                 --
+    --                                                               --
+    -- Update trigger that hides frame when close button is clicked. --
+    --===============================================================--
+    initCloseButtonTrig = function(self)
+        local closeButton = BlzFrameGetChild(self.Frame, 1)
+        local newTrig = CreateTrigger()
+        BlzTriggerRegisterFrameEvent(newTrig, closeButton, FRAMEEVENT_CONTROL_CLICK)
+        TriggerAddAction(newTrig, function()
+            BlzFrameSetVisible(self.Frame, false)
+        end)
+
+        -- Clean up old trigger and replace it with new trigger --
+        if (self.CloseButtonTrig ~= nil) then
+            DestroyTrigger(self.CloseButtonTrig) end
+        getmetatable(self).__index.CloseButtonTrig = newTrig  --Set read-only prop (supaTable)
     end,
     },{
     

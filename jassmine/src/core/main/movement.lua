@@ -4,12 +4,13 @@ local libUnitMove = require "libUnitMove"
 
 
 --== TEST: NEW PLAYER CONTROLLER ==--
-local peasant = CreateUnit(Player(0), FourCC("hpea"), 0, 0, 0)
-local peasant2 = CreateUnit(Player(1), FourCC("hpea"), 0, 0, 0)
+local peasant = CreateUnit(Player(0), FourCC("hpea"), 0, -400, 0)
+local peasant2 = CreateUnit(Player(1), FourCC("hpea"), 0, -400, 0)
 local playerController = libUnitMove.unitMove2D:new({
     PlayerId = 0,
     Unit = peasant,
 })
+-- SetUnitPathing(peasant, false)
 
 --== TEST: FORCEUICANCEL() WORKAROUND TO DRAG SELECTION DISABLING KEYPRESSES ==--
 --== WORKS BUT CAN BUG OUT IF SPAMMING KEYPRESSES + MOUSEDOWNS ==--

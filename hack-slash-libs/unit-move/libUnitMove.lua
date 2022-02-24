@@ -8,14 +8,13 @@ local table2 = require "table2"
 
 
 
---=======================================--
--- class unitMove2D                      --
---                                       --
--- One instance handles movement         --
--- of a single unit for a single player. --
---=======================================--
+--========================================================--
+-- class unitMove2D                                       --
+--                                                        --
+-- Handles movement of a unit with key input of a player. --
+--========================================================--
 libUnitMove.unitMove2D = setmetatable({
-    Name = "New Player Controller",
+    Name = "New 2D Player Controller",
 
     --== Auto-Update Functionality On Change ==--
     PlayerId,            -- int. Change to set which player this controls.

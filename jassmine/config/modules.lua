@@ -4,4 +4,5 @@ return {
     "nelf-libs/helper",
     "ui-libs/tab-menu",
     "hack-slash-libs/unit-move",
+    "hack-slash-libs/unit-atk",
 }

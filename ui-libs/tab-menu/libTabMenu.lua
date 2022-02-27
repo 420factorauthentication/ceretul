@@ -55,7 +55,7 @@ libTabMenu.tabMenu = setmetatable({
     --== Read-Only ==--
     Frame,                -- Framehandle for main parent frame
     ButtonCurrent,        -- Number of currently clicked tab button (0-4). Up to 5 tab buttons visible at one time.
-    EntryCurrent,         -- Entries array index of currently clicked tab button, starting from 1.
+    EntryCurrent,         -- The table key into Entries to get the entry currently selected by tab buttons.
     EntryCount,           -- Size of Entries array. (not the supaTable proxy)
     CloseButtonTrig,      -- Trigger to hide frame when close button is clicked
     TabSliderTrig,        -- Trigger to scroll tab buttons with slider
@@ -74,7 +74,8 @@ libTabMenu.tabMenu = setmetatable({
         if (o.TabButtonTrigs == nil) then o.TabButtonTrigs = {} end
 
         -- Init default vars and methods --
-        o.EntryCount = #o.Entries
+        o.EntryCount = 0
+        for k, v in pairs(o.Entries) do o.EntryCount = o.EntryCount + 1 end
         o.Frame = BlzCreateFrame("TabMenu", BlzGetOriginFrame(ORIGIN_FRAME_GAME_UI, 0), 0, 0)
         BlzFrameSetAbsPoint(o.Frame, FRAMEPOINT_TOPLEFT, 0.02, 0.553)
         setmetatable(o, {__index = self})
@@ -94,10 +95,15 @@ libTabMenu.tabMenu = setmetatable({
 
         -- Auto-update frame (supaTable) --
         tbl:watchProp(function(t,k,v)
-            tbl:sortEntries()
-
             -- Update EntryCount, using actual Entries table (not supaTable proxy) --
-            getmetatable(tbl).__index.EntryCount = #getmetatable(tbl.Entries).__index
+            local tbl0 = getmetatable(tbl).__index
+            local tblEntries = getmetatable(tbl.Entries).__index
+
+            tbl0.EntryCount = 0
+            for k, v in pairs(tblEntries) do
+                tbl0.EntryCount = tbl0.EntryCount + 1 end
+
+            -- getmetatable(tbl).__index.EntryCount = #getmetatable(tbl.Entries).__index
             print(tbl.EntryCount)
             
             tbl:updateTabLabels()
@@ -124,25 +130,6 @@ libTabMenu.tabMenu = setmetatable({
     end,
 
     --<< PRIVATE METHODS >>--
-    --====================================--
-    -- tabMenu:sortEntries()              --
-    --                                    --
-    -- Formats the Entries table so that  --
-    -- keys are integers starting from 1. --
-    --====================================--
-    sortEntries = function(self)
-        -- Actual Entries, not supaTable proxy --
-        local tblEntries = getmetatable(self.Entries).__index  
-
-        local newTblEntries = {}
-        for k, v in pairs(tblEntries) do
-            table.insert(newTblEntries, v)
-        end
-
-        -- Set actual Entries --
-        getmetatable(self.Entries).__index = newTblEntries
-    end,
-    
     --=================================================--
     -- tabMenu:updateCloseButtonPos()                  --
     --                                                 --
@@ -182,9 +169,18 @@ libTabMenu.tabMenu = setmetatable({
     --==============================================--
     updateTabLabels = function(self)
         local tabBar = BlzFrameGetChild(self.Frame, 2)
-        for i=1, math.min(5, self.EntryCount) do
-            local tab = BlzFrameGetChild(tabBar, i-1)
-            BlzFrameSetText(tab, self.Entries[self.TabSkip+i].Label)
+        local tabFrameIndex = 0
+        local skippedEntries = 0
+
+        for k, v in table2.pairsByKeys(self.Entries) do
+            if (skippedEntries < self.TabSkip) then
+                skippedEntries = skippedEntries + 1
+            else
+                local tab = BlzFrameGetChild(tabBar, tabFrameIndex)
+                BlzFrameSetText(tab, v.Label)
+                tabFrameIndex = tabFrameIndex + 1
+                if (tabFrameIndex > 4) then break end
+            end
         end
     end,
 
@@ -195,8 +191,6 @@ libTabMenu.tabMenu = setmetatable({
     --=================================================--
     updateTabCount = function(self)
         local tabBar = BlzFrameGetChild(self.Frame, 2)
-        local tabWidth  = constTabMenu.menuSize * constTabMenu.tabWidth
-        local tabHeight = constTabMenu.menuSize * constTabMenu.tabHeight
 
         for i=1, math.min(5, self.EntryCount) do
             local tab = BlzFrameGetChild(tabBar, i-1)
@@ -236,6 +230,7 @@ libTabMenu.tabMenu = setmetatable({
             local tabPosX4 = tabWidth * 4
             BlzFrameSetSize(tab4, 0, tabHeight)
             BlzFrameSetPoint(tab4, FRAMEPOINT_TOPLEFT, tabBar, FRAMEPOINT_TOPLEFT, tabPosX4, 0)
+            
         else
             BlzFrameSetVisible(tabSlider, true)
         end
@@ -350,6 +345,7 @@ libTabMenu.tabMenu = setmetatable({
         -- Used to set read-only props (supaTable) --
         local tbl = getmetatable(self).__index
         local tblTrigs = getmetatable(self.TabButtonTrigs).__index
+        local tblEntries = getmetatable(self.Entries).__index
         
         for i=1, 5 do
             -- Clean up old trigger --
@@ -364,8 +360,24 @@ libTabMenu.tabMenu = setmetatable({
             TriggerAddAction(self.TabButtonTrigs[i], function()
 
                 -- Update current selection --
+                local skippedEntries = 0
+                local buttonIndex    = 0
+
                 tbl.ButtonCurrent = i-1
-                tbl.EntryCurrent = self.TabSkip + i
+
+                -- tbl.EntryCurrent = self.TabSkip + i
+                for k, v in table2.pairsByKeys(tblEntries) do
+                    if (skippedEntries < self.TabSkip) then
+                        skippedEntries = skippedEntries + 1
+                    else
+                        buttonIndex = buttonIndex + 1
+                        if (buttonIndex >= i) then
+                            tbl.EntryCurrent = k
+                            break
+                        end
+                    end
+                end
+
                 self:updateText()
             end)
         end

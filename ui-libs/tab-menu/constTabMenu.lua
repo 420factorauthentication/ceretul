@@ -7,7 +7,7 @@ local constTabMenu = {}
 ----------------------------------
 -- Menu Size (in 0.8:0:6 scale) --
 ----------------------------------
-constTabMenu.menuSize = 0.5 --not including borders
+constTabMenu.menuSize   = 0.5   --not including borders
 constTabMenu.borderSize = 0.025 --size of one edge
 
 
@@ -36,14 +36,26 @@ constTabMenu.rightBodyHeight   = (13/16)
 constTabMenu.paddingHorizontal = (1 - constTabMenu.leftBodyWidth - constTabMenu.rightBodyWidth) / 2
 constTabMenu.paddingVertical   = (1 - constTabMenu.tabBarHeight - constTabMenu.rightBodyHeight) / 2
 
+constTabMenu.tabSelectIndent   = constTabMenu.paddingVertical / 8
+
 
 
 -----------------------------
 -- Tab Bar Slider Settings --
 -----------------------------
-constTabMenu.sliderMin = 0
-constTabMenu.sliderMax = 100
+constTabMenu.sliderMin   = 0
+constTabMenu.sliderMax   = 100
 constTabMenu.sliderRange = math.abs(constTabMenu.sliderMax - constTabMenu.sliderMin)
+
+
+
+-------------------
+-- Texture Paths --
+-------------------
+-- constTabMenu.buttonUpTex   = "UI\\Widgets\\EscMenu\\Human\\human-options-menu-background.blp"
+-- constTabMenu.buttonDownTex = "UI\\Widgets\\EscMenu\\Human\\human-options-menu-background.blp"
+constTabMenu.buttonUpTex   = "EscMenuButtonBackdropTemplate"
+constTabMenu.buttonDownTex = "EscMenuButtonPushedBackground"
 
 
 

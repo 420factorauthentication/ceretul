@@ -166,8 +166,21 @@ local specs = function()
     -- local removeTabMenuEntry = CreateTrigger()
     -- BlzTriggerRegisterPlayerKeyEvent(removeTabMenuEntry, Player(0), OSKEY_SPACE, 0, false)
     -- TriggerAddAction(removeTabMenuEntry, function()
-    --     newTabMenu.Entries[1] = nil
+    --     newTabMenu.Entries[3] = nil
     --     print("deleted a tab entry")
+    -- end)
+
+    --== TEST: SET TEXTURE ==--
+    -- local setTexture = CreateTrigger()
+    -- BlzTriggerRegisterPlayerKeyEvent(setTexture, Player(0), OSKEY_J, 0, false)
+    -- TriggerAddAction(setTexture, function()
+        -- local tabBar = BlzFrameGetChild(newTabMenu.Frame, 2)
+        -- local tab2 = BlzFrameGetChild(tabBar, 2)
+        -- local tabBackdrop2 = BlzFrameGetChild(tab2, 0)
+        -- local tabText2 = BlzFrameGetChild(tab2, 5)
+        -- BlzFrameSetTexture(tabBackdrop2, "UI\\Widgets\\EscMenu\\Undead\\undead-options-button-background-down.blp", 0, false)  --works
+        -- BlzFrameSetTexture(tabBackdrop2, "EscMenuButtonPushedBackground", 0, false)  --doesnt work
+        -- print("set texture of tab 2")
     -- end)
 end
 

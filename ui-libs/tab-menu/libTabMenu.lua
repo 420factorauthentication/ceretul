@@ -50,17 +50,17 @@ libTabMenu.tabMenu = setmetatable({
 
     --== Auto-Update Functionality On Change ==--
     Entries   = {},     -- tabMenuEntry class objects
-    BoardMode = false,  -- If game has a leaderboard, set this to true, to avoid blocking buttons.
+    BoardMode = false,  -- If game has a leaderboard, set this to true, to avoid blocking X button.
 
     --== Read-Only ==--
     Frame,                -- Framehandle for main parent frame
-    ButtonCurrent,        -- Number of currently clicked tab button (0-4). Up to 5 tab buttons visible at one time.
+    ButtonCurrent,        -- Number of currently clicked tab button (0 to 4). Can be negative due to tab slider position.
     EntryCurrent,         -- The table key into Entries to get the entry currently selected by tab buttons.
     EntryCount,           -- Size of Entries array. (not the supaTable proxy)
     CloseButtonTrig,      -- Trigger to hide frame when close button is clicked
     TabSliderTrig,        -- Trigger to scroll tab buttons with slider
     TabButtonTrigs = {},  -- Triggers to update text when tab buttons are clicked
-    TabPosOffset   = 0,   -- How much the position/width of tabs are adjusted to simulate scrolling
+    TabPosOffset   = 0,   -- How much the width of first tab is adjusted to simulate scrolling
     TabSkip        = 0,   -- Number of tabs scrolled past with slider, starting from 0.
     
     --=============--
@@ -95,16 +95,12 @@ libTabMenu.tabMenu = setmetatable({
 
         -- Auto-update frame (supaTable) --
         tbl:watchProp(function(t,k,v)
-            -- Update EntryCount, using actual Entries table (not supaTable proxy) --
-            local tbl0 = getmetatable(tbl).__index
-            local tblEntries = getmetatable(tbl.Entries).__index
+            local tbl0 = getmetatable(tbl).__index  --set read-only prop (supaTable)
+            local tblEntries = getmetatable(tbl.Entries).__index  --get array size of actual table, not metatable proxy
 
             tbl0.EntryCount = 0
             for k, v in pairs(tblEntries) do
                 tbl0.EntryCount = tbl0.EntryCount + 1 end
-
-            -- getmetatable(tbl).__index.EntryCount = #getmetatable(tbl.Entries).__index
-            print(tbl.EntryCount)
             
             tbl:updateTabLabels()
             tbl:updateTabCount()
@@ -169,7 +165,7 @@ libTabMenu.tabMenu = setmetatable({
     --==============================================--
     updateTabLabels = function(self)
         local tabBar = BlzFrameGetChild(self.Frame, 2)
-        local tabFrameIndex = 0
+        local tabFrameIndex  = 0
         local skippedEntries = 0
 
         for k, v in table2.pairsByKeys(self.Entries) do
@@ -278,7 +274,7 @@ libTabMenu.tabMenu = setmetatable({
         local newTrig = CreateTrigger()
         BlzTriggerRegisterFrameEvent(newTrig, tabSlider, FRAMEEVENT_SLIDER_VALUE_CHANGED)
         TriggerAddAction(newTrig, function()
-            -- Slider does nothing if 4 or less tabs --
+            if (GetLocalPlayer() ~= GetTriggerPlayer()) then return end
             if (self.EntryCount < 5) then return end
 
             -- Update read-only properties (supaTable) --
@@ -287,6 +283,30 @@ libTabMenu.tabMenu = setmetatable({
             local sliderRangePerTab = constTabMenu.sliderRange / (self.EntryCount - 4)
             tbl.TabPosOffset = tabWidth * ((sliderValue % sliderRangePerTab) / sliderRangePerTab)
             tbl.TabSkip = math.floor(sliderValue / sliderRangePerTab)
+
+            -- If scrolled to a new button --
+            if (self.TabSkip ~= oldTabSkip) then
+                self:updateTabLabels()
+
+                -- Update current selected button --
+                if (self.ButtonCurrent ~= nil) then
+                    local oldButtonNum = self.ButtonCurrent
+                    tbl.ButtonCurrent  = self.ButtonCurrent + oldTabSkip - self.TabSkip
+                end
+            end
+
+            -- Vertically indent currently selected button --
+            local tabHeight0 = (self.ButtonCurrent == 0) and (tabHeight + constTabMenu.tabSelectIndent) or tabHeight
+            local tabHeight1 = (self.ButtonCurrent == 1) and (tabHeight + constTabMenu.tabSelectIndent) or tabHeight
+            local tabHeight2 = (self.ButtonCurrent == 2) and (tabHeight + constTabMenu.tabSelectIndent) or tabHeight
+            local tabHeight3 = (self.ButtonCurrent == 3) and (tabHeight + constTabMenu.tabSelectIndent) or tabHeight
+            local tabHeight4 = (self.ButtonCurrent == 4) and (tabHeight + constTabMenu.tabSelectIndent) or tabHeight
+
+            local tabPosY0 = (self.ButtonCurrent == 0) and constTabMenu.tabSelectIndent or 0
+            local tabPosY1 = (self.ButtonCurrent == 1) and constTabMenu.tabSelectIndent or 0
+            local tabPosY2 = (self.ButtonCurrent == 2) and constTabMenu.tabSelectIndent or 0
+            local tabPosY3 = (self.ButtonCurrent == 3) and constTabMenu.tabSelectIndent or 0
+            local tabPosY4 = (self.ButtonCurrent == 4) and constTabMenu.tabSelectIndent or 0
 
             -- Adjust width and position of tabs to simulate scrolling --
             local tabWidth0 = tabWidth - self.TabPosOffset
@@ -301,12 +321,17 @@ libTabMenu.tabMenu = setmetatable({
             local tabPosX3 = tabWidth0 + tabWidth1 + tabWidth2
             local tabPosX4 = tabWidth0 + tabWidth1 + tabWidth2 + tabWidth3
 
-            BlzFrameSetSize(tab0, tabWidth0, tabHeight)
-            BlzFrameSetSize(tab4, tabWidth4, tabHeight)
-            BlzFrameSetPoint(tab1, FRAMEPOINT_TOPLEFT, tabBar, FRAMEPOINT_TOPLEFT, tabPosX1, 0)
-            BlzFrameSetPoint(tab2, FRAMEPOINT_TOPLEFT, tabBar, FRAMEPOINT_TOPLEFT, tabPosX2, 0)
-            BlzFrameSetPoint(tab3, FRAMEPOINT_TOPLEFT, tabBar, FRAMEPOINT_TOPLEFT, tabPosX3, 0)
-            BlzFrameSetPoint(tab4, FRAMEPOINT_TOPLEFT, tabBar, FRAMEPOINT_TOPLEFT, tabPosX4, 0)
+            BlzFrameSetSize(tab0, tabWidth0, tabHeight0)
+            BlzFrameSetSize(tab1, tabWidth1, tabHeight1)
+            BlzFrameSetSize(tab2, tabWidth2, tabHeight2)
+            BlzFrameSetSize(tab3, tabWidth3, tabHeight3)
+            BlzFrameSetSize(tab4, tabWidth4, tabHeight4)
+
+            BlzFrameSetPoint(tab0, FRAMEPOINT_TOPLEFT, tabBar, FRAMEPOINT_TOPLEFT, tabPosX0, tabPosY0)
+            BlzFrameSetPoint(tab1, FRAMEPOINT_TOPLEFT, tabBar, FRAMEPOINT_TOPLEFT, tabPosX1, tabPosY1)
+            BlzFrameSetPoint(tab2, FRAMEPOINT_TOPLEFT, tabBar, FRAMEPOINT_TOPLEFT, tabPosX2, tabPosY2)
+            BlzFrameSetPoint(tab3, FRAMEPOINT_TOPLEFT, tabBar, FRAMEPOINT_TOPLEFT, tabPosX3, tabPosY3)
+            BlzFrameSetPoint(tab4, FRAMEPOINT_TOPLEFT, tabBar, FRAMEPOINT_TOPLEFT, tabPosX4, tabPosY4)
 
             --- Hide tabs if too small, to avoid display quirks --
             if (tabWidth0 < minWidth) then
@@ -319,11 +344,6 @@ libTabMenu.tabMenu = setmetatable({
                 BlzFrameSetVisible(tab4, false)
             else
                 BlzFrameSetVisible(tab4, true)
-            end
-            
-            -- If scrolled to a new button, update tab labels --
-            if (self.TabSkip ~= oldTabSkip) then
-                self:updateTabLabels()
             end
         end)
 
@@ -347,8 +367,7 @@ libTabMenu.tabMenu = setmetatable({
         local tblTrigs = getmetatable(self.TabButtonTrigs).__index
         local tblEntries = getmetatable(self.Entries).__index
         
-        for i=1, 5 do
-            -- Clean up old trigger --
+        for i=1, 5 do  -- Clean up old trigger --
             if (self.TabButtonTrigs[i] ~= nil) then
                 DestroyTrigger(self.TabButtonTrigs[i])
             end
@@ -358,14 +377,12 @@ libTabMenu.tabMenu = setmetatable({
             tblTrigs[i] = CreateTrigger()
             BlzTriggerRegisterFrameEvent(self.TabButtonTrigs[i], tabButton, FRAMEEVENT_CONTROL_CLICK)
             TriggerAddAction(self.TabButtonTrigs[i], function()
+                if (GetLocalPlayer() ~= GetTriggerPlayer()) then return end
+                local buttonNum = i - 1
 
-                -- Update current selection --
+                -- Traverse Entries in order of keys. EntryCurrent = TabSkip + i --
                 local skippedEntries = 0
                 local buttonIndex    = 0
-
-                tbl.ButtonCurrent = i-1
-
-                -- tbl.EntryCurrent = self.TabSkip + i
                 for k, v in table2.pairsByKeys(tblEntries) do
                     if (skippedEntries < self.TabSkip) then
                         skippedEntries = skippedEntries + 1
@@ -378,7 +395,45 @@ libTabMenu.tabMenu = setmetatable({
                     end
                 end
 
+                -- Update displayed text --
                 self:updateText()
+
+                -- Indent clicked button --
+                local tabWidth  = constTabMenu.menuSize * constTabMenu.tabWidth
+                local tabHeight = constTabMenu.menuSize * constTabMenu.tabHeight
+                local newTabHeight = tabHeight + constTabMenu.tabSelectIndent
+                local newTabPosY   = constTabMenu.tabSelectIndent
+
+                local newTabWidth  = tabWidth
+                if     (i == 1) then newTabWidth = tabWidth - self.TabPosOffset
+                elseif (i == 5) then newTabWidth = self.TabPosOffset end
+
+                local newTabPosX = 0
+                if (i == 2) then newTabPosX = tabWidth - self.TabPosOffset end
+                if (i > 2)  then newTabPosX = (tabWidth - self.TabPosOffset) + (tabWidth * (i-2)) end
+
+                BlzFrameSetSize(tabButton, newTabWidth, newTabHeight)
+                BlzFrameSetPoint(tabButton, FRAMEPOINT_TOPLEFT, tabBar, FRAMEPOINT_TOPLEFT, newTabPosX, newTabPosY)
+
+                -- Unindent previously clicked button --
+                local buttonPrev = tbl.ButtonCurrent
+                if (buttonPrev ~= nil) then
+                    local prevTabButton = BlzFrameGetChild(tabBar, buttonPrev)
+
+                    local prevTabPosX = 0
+                    if (buttonPrev == 1) then prevTabPosX = tabWidth - self.TabPosOffset end
+                    if (buttonPrev > 1)  then prevTabPosX = (tabWidth - self.TabPosOffset) + (tabWidth * (buttonPrev-1)) end
+                    
+                    BlzFrameSetSize(prevTabButton, tabWidth, tabHeight)
+                    BlzFrameSetPoint(prevTabButton, FRAMEPOINT_TOPLEFT, tabBar, FRAMEPOINT_TOPLEFT, prevTabPosX, 0)
+                end
+
+                -- Clear keyboard focus --
+                BlzFrameSetEnable(tabButton, false)
+                BlzFrameSetEnable(tabButton, true)
+
+                -- Update current button --
+                tbl.ButtonCurrent = i-1
             end)
         end
     end,
@@ -389,10 +444,13 @@ libTabMenu.tabMenu = setmetatable({
     -- Update trigger that hides frame when close button is clicked. --
     --===============================================================--
     initCloseButtonTrig = function(self)
-        local closeButton = BlzFrameGetChild(self.Frame, 1)
+        local xButton = BlzFrameGetChild(self.Frame, 1)
+        local tabBar  = BlzFrameGetChild(self.Frame, 2)
+
         local newTrig = CreateTrigger()
-        BlzTriggerRegisterFrameEvent(newTrig, closeButton, FRAMEEVENT_CONTROL_CLICK)
+        BlzTriggerRegisterFrameEvent(newTrig, xButton, FRAMEEVENT_CONTROL_CLICK)
         TriggerAddAction(newTrig, function()
+            if (GetLocalPlayer() ~= GetTriggerPlayer()) then return end
             BlzFrameSetVisible(self.Frame, false)
         end)
 

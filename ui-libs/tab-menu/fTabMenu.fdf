@@ -37,7 +37,7 @@ Frame "TEXT" "NewTabMenuTabText" {
     FontFlags "NOWRAP",
     FrameFont "EscMenuTextFont", 0.013, "",
     FontColor           0.99   0.827   0.0705   1.0,
-    FontHighlightColor  1.0    1.0     1.0      1.0,
+ // FontHighlightColor  1.0    1.0     1.0      1.0,
     FontDisabledColor   0.5    0.5     0.5      1.0,
 	FontShadowColor     0.0    0.0     0.0      0.9,
 }

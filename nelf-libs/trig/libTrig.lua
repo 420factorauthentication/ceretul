@@ -4,6 +4,7 @@ local libTrig = {}
 
 -- < Modules > --
 local libPlayer = require "libPlayer"
+local table2 = require "table2"
 
 
 
@@ -28,46 +29,52 @@ end
 --=========================================--
 -- executeAtRuntime()                      --
 --   func: function with no args           --
---   priority: real                        --
+--   deltaTime: real = 0                   --
 --                                         --
 -- Use to execute some code at game start, --
 -- rather than during loading/compiling.   --
--- Lower priority numbers execute first.   --
+-- DeltaTime = secs after runtime start.   --
+--  (instant if runtime started already)   --
 --=========================================--
-libTrig.executeAtRuntime = function(func, priority)
-    -- if (GLOBAL_RUNTIME_ALREADY_EXECUTED ~= nil) then
-    --     func() return end
+libTrig.executeAtRuntime = function(func, deltaTime)
+    deltaTime = deltaTime or 0
 
-    -- if (GLOBAL_RUNTIME_CODE == nil) then
-    --     GLOBAL_RUNTIME_CODE = {} end
+    -- Execute immediately if game already started --
+    if (GLOBAL_RUNTIME_DONE == true) then func() return end
 
-    -- if (GLOBAL_RUNTIME_CODE[priority] == nil) then
-    --     GLOBAL_RUNTIME_CODE[priority] = {} end
+    -- Collect all functions if game hasnt started --
+    if (GLOBAL_RUNTIME_FUNCS == nil) then GLOBAL_RUNTIME_FUNCS = {} end
+    if (GLOBAL_RUNTIME_FUNCS[deltaTime] == nil) then GLOBAL_RUNTIME_FUNCS[deltaTime] = {} end
+    table.insert(GLOBAL_RUNTIME_FUNCS[deltaTime], func)
 
-    -- table.insert(GLOBAL_RUNTIME_CODE[priority], func)
+    -- DeltaTime counter; used to iteratively run functions in order --
+    if (GLOBAL_RUNTIME_LASTTIMEOFFSET == nil) then GLOBAL_RUNTIME_LASTTIMEOFFSET = 0 end
 
-    -- if (GLOBAL_RUNTIME_TRIG ~= nil) then
-    --     GLOBAL_RUNTIME_TRIG = CreateTrigger()
-    --     TriggerAddAction(GLOBAL_RUNTIME_TRIG, function()
+    -- One trigger to execute all functions at runtime start --
+    if (GLOBAL_RUNTIME_TRIG == nil) then
+        GLOBAL_RUNTIME_TRIG = CreateTrigger()
+        TriggerAddAction(GLOBAL_RUNTIME_TRIG, function()
+            GLOBAL_RUNTIME_DONE = true  --Runtime has started; flag system to stop collecting functions
+            
+            -- Execute all functions in order at the right DeltaTime --
+            for k, v in table2.pairsByKeys(GLOBAL_RUNTIME_FUNCS) do
+                if (k > GLOBAL_RUNTIME_LASTTIMEOFFSET) then
+                    TriggerSleepAction(k - GLOBAL_RUNTIME_LASTTIMEOFFSET)
+                    GLOBAL_RUNTIME_LASTTIMEOFFSET = k
+                end
+                
+                for x, d in table2.pairsByKeys(v) do d() end
+            end
 
-    --     end)
-    -- end
+            -- Cleanup --
+            for k, v in pairs(GLOBAL_RUNTIME_FUNCS) do
+                GLOBAL_RUNTIME_FUNCS[k] = nil end
+            GLOBAL_RUNTIME_FUNCS = nil
+            GLOBAL_RUNTIME_LASTTIMEOFFSET = nil
+            DestroyTrigger(GLOBAL_RUNTIME_TRIG)
 
-
-        
-
-
-
-
-
-    priority = math.abs(priority)
-
-    local trig_runtime = CreateTrigger()
-    TriggerAddAction(trig_runtime, function()
-        func()
-        DestroyTrigger(trig_runtime)
-    end)
-    TriggerRegisterTimerEventSingle(trig_runtime, ((0.01 * priority) + 0.01))
+        end) TriggerRegisterTimerEventSingle(GLOBAL_RUNTIME_TRIG, 0)
+    end
 end
 
 

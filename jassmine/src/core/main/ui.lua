@@ -195,3 +195,18 @@ loadingScreenUI()
 preRuntimeUI()
 libTrig.executeAtRuntime(postRuntimeUI, constTrig.runtimeInitFrames)
 libTrig.executeAtRuntime(specs, constTrig.runtimeInitFrames)
+
+
+
+
+
+
+--== TEST: libTrig.executeAtRuntime ==--
+-- libTrig.executeAtRuntime(function() print("executeAtRuntime: deltaTime 0") end, 0)
+-- libTrig.executeAtRuntime(function() print("executeAtRuntime: deltaTime 2") end, 2)
+-- libTrig.executeAtRuntime(function() print("executeAtRuntime: deltaTime 3") end, 3)
+-- libTrig.executeAtRuntime(function() print("executeAtRuntime: deltaTime 4") end, 4)
+
+-- libTrig.executeAtRuntime(function()
+--     libTrig.executeAtRuntime(function() print("executeAtRuntime already runtime: deltaTime 1") end, 5)
+-- end, 1)

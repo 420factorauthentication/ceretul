@@ -8,23 +8,26 @@ local table2 = require "table2"
 
 
 
---==============================================================================--
--- class attack                                                                 --
---                                                                              --
--- One stage of a combo.                                                        --
--- Handles a moving hitbox, damage, and VFX.                                    --
---                                                                              --
--- If TimeLength <= 0 or Keyframes <= 1: Only hitbox start is used.             --
--- If TimeLength > 0 and Keyframes >= 2: Hitbox interpolates from start to end. --
---                                                                              --
--- If FilterUnitIds is empty, any unit type can be hit.                         --
--- If not empty, FilterUnitIds[unitId] must equal true.                         --
---                                                                              --
--- If FilterAllyTypes is empty, allied and enemy units can be hit.              --
--- If FilterAllyTypes[alliancetype] == true, only allied units can be hit.      --
--- If FilterAllyTypes[alliancetype] == false, only enemy units can be hit.      --
---==============================================================================--
-libUnitAtk.attack = setmetatable({
+--================================================================================--
+-- class slash                                                                    --
+--                                                                                --
+-- An attack with a moving rectangular hitbox, damage, and VFX.                   --
+--                                                                                --
+-- If TimeLength <= 0 or Keyframes <= 1: Only hitbox start is used.               --
+-- If TimeLength > 0 and Keyframes >= 2: Hitbox interpolates from start to end.   --
+--                                                                                --
+-- If a Target Filter table is empty, that filter type has no effect.             --
+-- If not, the target unit must match the stored bool.                            --
+--                                                                                --
+-- Example:                                                                       --
+-- If FilterAllyTypes is empty, allied and enemy units can be hit.                --
+-- If FilterAllyTypes[alliancetype] == true, only allied units can be hit.        --
+-- If FilterAllyTypes[alliancetype] == false, only enemy units can be hit.        --
+--                                                                                --
+-- Visual Effect tables accept strings (model filepath) or libVFX.vfxTemplate.    --
+-- Use a string to create an Effect with default settings and better performance. --
+--================================================================================--
+libUnitAtk.slash = setmetatable({
     Name = "New Attack Moment",
 
     --== Damage Numbers ==--
@@ -53,17 +56,18 @@ libUnitAtk.attack = setmetatable({
 
     EndMinX,  -- In-game coordinate. Relative left edge of hitbox end
     EndMaxX,  -- In-game coordinate. Relative right edge of hitbox end
-    EndMinY,  -- In-game hcoordinate. Relative bottom edge of hitbox end
+    EndMinY,  -- In-game coordinate. Relative bottom edge of hitbox end
     EndMaxY,  -- In-game coordinate. Relative top edge of hitbox end  
 
     --== Target Filters ==--
     FilterUnitIds   = {},  -- k: string (Four-char unitid)   v: bool
-    FilterAllyTypes = {},  -- k: alliancetype (native)       v: bool
+    FilterUnitTypes = {},  -- k: (native) unittype           v: bool
+    FilterAllyTypes = {},  -- k: (native) alliancetype       v: bool
 
-    --== Art ==--
-    MotionVFX = {},  -- v: Path to model file. Created on each hitbox frame
-    OriginVFX = {},  -- v: Path to model file. Created on attacking unit
-    TargetVFX = {},  -- v: Path to model file. Created on units hit by attack
+    --== Visual Effects ==--
+    OriginVFX = {},  -- v: string (model path) or libVFX.vfxTemplate. Created on attacking unit
+    MotionVFX = {},  -- v: string (model path) or libVFX.vfxTemplate. Created on each hitbox frame
+    TargetVFX = {},  -- v: string (model path) or libVFX.vfxTemplate. Created on units hit by attack
     
     --=============--
     -- Constructor --
@@ -71,23 +75,27 @@ libUnitAtk.attack = setmetatable({
     new = function(self, o)
         o = o or {}
         
-        -- Init empty table properties --
+        -- Init default params and methods --
         o.FilterUnitIds   = o.FilterUnitIds   or {}
+        o.FilterUnitTypes = o.FilterUnitTypes or {[UNIT_TYPE_DEAD] = false}
         o.FilterAllyTypes = o.FilterAllyTypes or {}
 
-        o.MotionVFX = o.MotionVFX or {}
         o.OriginVFX = o.OriginVFX or {}
+        o.MotionVFX = o.MotionVFX or {}
         o.TargetVFX = o.TargetVFX or {}
-
-        -- Init default params and methods --
+        
         setmetatable(o, {__index = self})
+
+        if (o.TimeStart  < 0) then o.TimeStart  = 0 end
+        if (o.TimeLength < 0) then o.TimeLength = 0 end
+        if (o.Keyframes  < 1) then o.Keyframes  = 1 end
 
         -- Return --
         return o
     end,
 
     --=================================================--
-    -- attack:launch()                                 --
+    -- slash:launch()                                  --
     --   originUnit: (native) unithandle               --
     --                                                 --
     -- Checks hitboxes relative to originUnit.         --
@@ -96,25 +104,32 @@ libUnitAtk.attack = setmetatable({
     --=================================================--
     launch = function(self, originUnit)
         local hitCounts = {}  -- MaxHits counter
+        local frameLength = self.TimeLength / self.Keyframes
 
         -- GroupEnum and EnterRegion filter: Only hit specified units --
         local filter = Filter(function()
+            local next = next  --compiler optimization
             local targetUnit = GetFilterUnit()
+
             if (targetUnit == originUnit) then return false end
             if (BlzIsUnitInvulnerable(targetUnit)) then return false end
 
-            if (#self.FilterUnitIds > 0)
+            if (next(self.FilterUnitIds) ~= nil)  --if table not empty
             and (self.FilterUnitIds[GetUnitTypeId(targetUnit)] ~= true) then
                 return false
             end
+
+            if (next(self.FilterUnitTypes) ~= nil) then  --if table not empty
+                for k, v in pairs(self.FilterUnitTypes) do
+                    if (IsUnitType(targetUnit, k) ~= v) then return false end
+                end
+            end
             
-            if (#self.FilterAllyTypes > 0) then
+            if (next(self.FilterAllyTypes) ~= nil) then  --if table not empty
                 local sourcePlayer = GetOwningPlayer(originUnit)
                 local otherPlayer  = GetOwningPlayer(targetUnit)
                 for k, v in pairs(self.FilterAllyTypes) do
-                    if (GetPlayerAlliance(sourcePlayer, otherPlayer, k) ~= v) then
-                        return false
-                    end
+                    if (GetPlayerAlliance(sourcePlayer, otherPlayer, k) ~= v) then return false end
                 end
             end
 
@@ -134,8 +149,31 @@ libUnitAtk.attack = setmetatable({
             UnitDamageTarget(originUnit, targetUnit, dmgTotal,
                 self.IsPhysical, self.IsRanged, self.AttackType, self.DamageType, self.WeaponType)
 
-            -- VFX --
-            
+            -- TargetVFX: Lasts for duration of one keyframe --
+            local activeTargetVFX = {}
+
+            for k, v in pairs(self.TargetVFX) do
+                -- String (model path): Effect with default settings --
+                if (type(v) == "string") then
+                    table.insert(activeTargetVFX,
+                        AddSpecialEffect(v, GetUnitX(targetUnit), GetUnitY(targetUnit)))
+                
+                else -- libVFX.vfxTemplate: Effect with custom settings --
+                    table.insert(activeTargetVFX,
+                        v:create(GetUnitX(targetUnit), GetUnitY(targetUnit)), BlzGetLocalUnitZ(targetUnit))
+                end
+            end
+
+            -- Cleanup TargetVFX --
+            if (#activeTargetVFX > 0) then
+                local trigCleanupTargetVFX = CreateTrigger()
+                TriggerAddAction(trigCleanupTargetVFX, function()
+                    for k, v in pairs(activeTargetVFX) do
+                        DestroyEffect(v)
+                        activeTargetVFX[k] = nil
+                    end DestroyTrigger(trigCleanupTargetVFX)
+                end) TriggerRegisterTimerEventSingle(trigCleanupTargetVFX, frameLength)
+            end
         end
 
         -- Helper function: One interpolation step of hitbox --
@@ -155,19 +193,37 @@ libUnitAtk.attack = setmetatable({
             TriggerRegisterEnterRegion(trigger, region, filter)
             TriggerAddAction(trigger, function() damageUnit(GetEnteringUnit()) end)
 
-            -- Cleanup just this hitbox --
+            -- MotionVFX: Lasts for duration of one keyframe --
+            local activeMotionVFX = {}
+            local centerX = (maxX + minX) / 2
+            local centerY = (maxY + minY) / 2
+
+            for k, v in pairs(self.MotionVFX) do
+                -- String (model path): Effect with default settings --
+                if (type(v) == "string") then
+                    table.insert(activeMotionVFX, AddSpecialEffect(v, centerX, centerY))
+                
+                else -- libVFX.vfxTemplate: Effect with custom settings --
+                    table.insert(activeMotionVFX, v:create(centerX, centerY))
+                end
+            end
+
+            -- Cleanup hitbox and MotionVFX --
             local hitboxCleanupTrig = CreateTrigger()
             TriggerAddAction(hitboxCleanupTrig, function()
+                for k, v in pairs(activeMotionVFX) do
+                    DestroyEffect(v)
+                    activeMotionVFX[k] = nil
+                end
+
                 DestroyTrigger(trigger)
                 RemoveRegion(region)
                 RemoveRect(rect)
                 DestroyTrigger(hitboxCleanupTrig)
-            end)
-            TriggerRegisterTimerEventSingle(hitboxCleanupTrig, duration)
+            end) TriggerRegisterTimerEventSingle(hitboxCleanupTrig, duration)
         end
 
         -- Run hitbox start once --
-        local frameLength = self.TimeLength / self.Keyframes
         local originUnitX = GetUnitX(originUnit)
         local originUnitY = GetUnitY(originUnit)
         local hitboxMinX = originUnitX + self.StartMinX
@@ -176,33 +232,61 @@ libUnitAtk.attack = setmetatable({
         local hitboxMaxY = originUnitY + self.StartMaxY
         runTimedHitbox(frameLength, hitboxMinX, hitboxMaxX, hitboxMinY, hitboxMaxY)
 
-        -- Hitbox interpolation --
+        -- If attack has a duration --
         local hitboxTrig
         local keyframesElapsed = 1
-        if (self.TimeLength > 0) and (self.Keyframes >= 2) then
-            local deltaMinX = (self.EndMinX - self.StartMinX) / (self.Keyframes - 1)
-            local deltaMaxX = (self.EndMaxX - self.StartMaxX) / (self.Keyframes - 1)
-            local deltaMinY = (self.EndMinY - self.StartMinY) / (self.Keyframes - 1)
-            local deltaMaxY = (self.EndMaxY - self.StartMaxY) / (self.Keyframes - 1)
+        if (self.TimeLength > 0) then 
 
-            hitboxTrig = CreateTrigger()
-            TriggerAddAction(hitboxTrig, function()
-                print(frameLength)
-                hitboxMinX = hitboxMinX + deltaMinX
-                hitboxMaxX = hitboxMaxX + deltaMaxX
-                hitboxMinY = hitboxMinY + deltaMinY
-                hitboxMaxY = hitboxMaxY + deltaMaxY
-                runTimedHitbox(frameLength, hitboxMinX, hitboxMaxX, hitboxMinY, hitboxMaxY)
+            -- OriginVFX: Lasts for duration of attack --
+            local activeOriginVFX = {}
 
-                -- Cleanup everything else --
-                keyframesElapsed = keyframesElapsed + 1
-                if (keyframesElapsed >= self.Keyframes) then
-                    DestroyFilter(filter)
-                    for k, v in pairs(hitCounts) do hitCounts[k] = nil end
-                    DestroyTrigger(hitboxTrig)
+            for k, v in pairs(self.OriginVFX) do
+                -- String (model path): Effect with default settings --
+                if (type(v) == "string") then
+                    table.insert(activeOriginVFX,
+                        AddSpecialEffect(v, GetUnitX(originUnit), GetUnitY(originUnit)))
+                
+                else -- libVFX.vfxTemplate: Effect with custom settings --
+                    table.insert(activeOriginVFX,
+                        v:create(GetUnitX(originUnit), GetUnitY(originUnit)), BlzGetLocalUnitZ(originUnit))
                 end
-            end)
-            TriggerRegisterTimerEventPeriodic(hitboxTrig, frameLength)
+            end
+
+            -- Cleanup OriginVFX --
+            if (#activeOriginVFX > 0) then
+                local trigCleanupOriginVFX = CreateTrigger()
+                TriggerAddAction(trigCleanupOriginVFX, function()
+                    for k, v in pairs(activeOriginVFX) do
+                        DestroyEffect(v)
+                        activeOriginVFX[k] = nil
+                    end DestroyTrigger(trigCleanupOriginVFX)
+                end) TriggerRegisterTimerEventSingle(trigCleanupOriginVFX, self.TimeLength)
+            end
+        
+            -- Hitbox interpolation --
+            if (self.Keyframes >= 2) then
+                local deltaMinX = (self.EndMinX - self.StartMinX) / (self.Keyframes - 1)
+                local deltaMaxX = (self.EndMaxX - self.StartMaxX) / (self.Keyframes - 1)
+                local deltaMinY = (self.EndMinY - self.StartMinY) / (self.Keyframes - 1)
+                local deltaMaxY = (self.EndMaxY - self.StartMaxY) / (self.Keyframes - 1)
+
+                hitboxTrig = CreateTrigger()
+                TriggerAddAction(hitboxTrig, function()
+                    hitboxMinX = hitboxMinX + deltaMinX
+                    hitboxMaxX = hitboxMaxX + deltaMaxX
+                    hitboxMinY = hitboxMinY + deltaMinY
+                    hitboxMaxY = hitboxMaxY + deltaMaxY
+                    runTimedHitbox(frameLength, hitboxMinX, hitboxMaxX, hitboxMinY, hitboxMaxY)
+
+                    -- Cleanup everything else --
+                    keyframesElapsed = keyframesElapsed + 1
+                    if (keyframesElapsed >= self.Keyframes) then
+                        DestroyFilter(filter)
+                        for k, v in pairs(hitCounts) do hitCounts[k] = nil end
+                        DestroyTrigger(hitboxTrig)
+                    end
+                end) TriggerRegisterTimerEventPeriodic(hitboxTrig, frameLength)
+            end
         end
     end,
     },{

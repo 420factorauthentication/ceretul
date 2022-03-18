@@ -46,7 +46,7 @@ local libUnitAtk = require "libUnitAtk"
 
 
 --== TEST: ATTACK ==--
-local newAttack = libUnitAtk.attack:new({
+local newAttack = libUnitAtk.slash:new({
     DmgFlatAmount = 50,
 
     TimeStart  = 0,
@@ -62,6 +62,10 @@ local newAttack = libUnitAtk.attack:new({
     EndMaxX = 400,
     EndMinY = 200,
     EndMaxY = 400,
+
+    OriginVFX = {"Abilities\\Spells\\Human\\MassTeleport\\MassTeleportCaster"},
+    MotionVFX = {"Abilities\\Spells\\Human\\ThunderClap\\ThunderClapCaster"},
+    TargetVFX = {"Abilities\\Spells\\Human\\ThunderClap\\ThunderClapTarget"},
 })
 
 local footman = CreateUnit(Player(0), FourCC("hfoo"), 0, 0, 0)

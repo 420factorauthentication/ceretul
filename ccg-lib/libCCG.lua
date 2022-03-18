@@ -45,13 +45,11 @@ libCCG.card = setmetatable({
     new = function(self, o)
         o = o or {}
 
-        -- Init empty table properties --
-        if (o.Instances == nil) then o.Instances = {} end
-        if (o.DefaultReqs == nil) then o.DefaultReqs = {} end
-        if (o.DefaultCosts == nil) then o.DefaultCosts = {} end
-        if (o.DefaultEffects == nil) then o.DefaultEffects = {} end
-
-        -- init default vars and methods --
+        -- Init default params and methods --
+        o.Instances      = o.Instances      or {}
+        o.DefaultReqs    = o.DefaultReqs    or {}
+        o.DefaultCosts   = o.DefaultCosts   or {}
+        o.DefaultEffects = o.DefaultEffects or {}
         setmetatable(o, {__index = self})
 
         -- This class is a supaTable --

@@ -40,10 +40,8 @@ libUnitMove.unitMove2D = setmetatable({
     new = function(self, o)
         o = o or {}
 
-        -- Init empty table properties --
-        o.Trigs = {}
-
         -- Init default params and methods --
+        o.Trigs = {}
         o.CurrVec = math2.vec3:new()
         setmetatable(o, {__index = self})
 

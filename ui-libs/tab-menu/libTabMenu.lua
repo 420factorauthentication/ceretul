@@ -69,15 +69,16 @@ libTabMenu.tabMenu = setmetatable({
     new = function(self, o)
         o = o or {}
 
-        -- Init empty table properties --
-        if (o.Entries == nil) then o.Entries = {} end
-        if (o.TabButtonTrigs == nil) then o.TabButtonTrigs = {} end
+        -- Init default params and methods --
+        o.Entries        = o.Entries        or {}
+        o.TabButtonTrigs = o.TabButtonTrigs or {}
 
-        -- Init default vars and methods --
         o.EntryCount = 0
         for k, v in pairs(o.Entries) do o.EntryCount = o.EntryCount + 1 end
+
         o.Frame = BlzCreateFrame("TabMenu", BlzGetOriginFrame(ORIGIN_FRAME_GAME_UI, 0), 0, 0)
         BlzFrameSetAbsPoint(o.Frame, FRAMEPOINT_TOPLEFT, 0.02, 0.553)
+        
         setmetatable(o, {__index = self})
 
         -- This class is a supaTable --

@@ -47,10 +47,11 @@ local libUnitAtk = require "libUnitAtk"
 
 --== TEST: ATTACK ==--
 local newAttack = libUnitAtk.slash:new({
-    DmgFlatAmount = 50,
+    DmgFlatAmount = 20,
+    MaxHits = 2,
 
     TimeStart  = 0,
-    TimeLength = 4,
+    TimeLength = 20,
     Keyframes  = 4,
 
     StartMinX = -400,

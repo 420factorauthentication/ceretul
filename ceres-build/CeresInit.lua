@@ -1,5 +1,5 @@
 --== < Libraries > ==--
-local libHelper = require "build-scripts/LibHelper"
+local libHelper = require "ceres-build/LibHelper"
 
 --== < Constants > ==--
 local projDir = ceres.getScriptArgs()[1]
@@ -29,7 +29,7 @@ local srcDirectories = {
     libHelper.formPath(projDir, "src", "war3mod", "abils"),
     libHelper.formPath(projDir, "src", "war3mod", "units"),
     
-    "runtime-scripts",
+    "ceres-runtime",
     libHelper.formPath(projDir, "target", "_build"),
 }
 

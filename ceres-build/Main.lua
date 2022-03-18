@@ -1,9 +1,9 @@
 --== < Libraries > ==--
-local libBuild = require "build-scripts/LibBuild"
+local libBuild = require "ceres-build/LibBuild"
 
 --== < Constants > ==--
 local projDir = ceres.getScriptArgs()[1]
-require "build-scripts/CeresInit"
+require "ceres-build/CeresInit"
 
 
 

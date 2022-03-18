@@ -3,7 +3,7 @@ local libBuild = {}
 --===============--
 
 --== < Libraries > ==--
-local libHelper = require "build-scripts/LibHelper"
+local libHelper = require "ceres-build/LibHelper"
 
 
 
@@ -198,8 +198,8 @@ libBuild.getRuntimeModuleFiles = function(modules)
  
     if (tocBuffer ~= "") then
         -- Add Dummy FDF to fix weird bug --
-        tocBuffer = tocBuffer .. "build-scripts\\Dummy.fdf" .. "\n"
-        table.insert(modFiles.imports, {"build-scripts/Dummy.fdf"})
+        tocBuffer = tocBuffer .. "ceres-build\\Dummy.fdf" .. "\n"
+        table.insert(modFiles.imports, {"ceres-build/Dummy.fdf"})
 
         -- Create one TOC file for all module FDFs --
         print("\n> NOTE: Module FDFs detected. Generating module TOC file...")
@@ -245,8 +245,8 @@ libBuild.parseSrcFrames = function()
         end
 
         -- Add Dummy FDF to fix weird bug --
-        tocBuffer = tocBuffer .. "build-scripts\\Dummy.fdf" .. "\n"
-        table.insert(imports, {"build-scripts/Dummy.fdf"})
+        tocBuffer = tocBuffer .. "ceres-build\\Dummy.fdf" .. "\n"
+        table.insert(imports, {"ceres-build/Dummy.fdf"})
         
         -- Create one TOC file for all src FDFs --
         local outputPath = libHelper.formPath(projDir, "target", "_build", "srcFrames.toc")

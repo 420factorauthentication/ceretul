@@ -12,14 +12,14 @@ Frame "FRAME" "Card" {
     Frame "BACKDROP" "CardBackBG" {
         SetAllPoints,
         BackdropBlendAll,
-        BackdropBackground "ccg-lib/art/cardback-eco",
+        BackdropBackground "lib-ccg/art/cardback-eco",
     }
 
     // 1. BlzFrameSetTexture() //
     Frame "BACKDROP" "CardFrontBG" {
         SetAllPoints,
         BackdropBlendAll,
-        BackdropBackground "ccg-lib/art/cardback-eco",
+        BackdropBackground "lib-ccg/art/cardback-eco",
     }
 
     // 2. BlzFrameSetTexture() //
@@ -29,7 +29,7 @@ Frame "FRAME" "Card" {
         UseActiveContext,
         SetPoint BOTTOMLEFT, "Card", BOTTOMLEFT, 0.03, 0.09,
         BackdropBlendAll,
-        BackdropBackground "nelf-libs/assets/blank",
+        BackdropBackground "lib-nelf/assets/blank",
     }
 
     // 3. BlzFrameSetText() //
@@ -38,7 +38,7 @@ Frame "FRAME" "Card" {
         FontJustificationOffset 0 -0.01,
         FontJustificationH JUSTIFYCENTER,
         FontJustificationV JUSTIFYTOP,
-        FrameFont "nelf-libs/ccg/vendor/Itim/Itim-Regular.ttf", 0.008, "",
+        FrameFont "lib-nelf/ccg/vendor/Itim/Itim-Regular.ttf", 0.008, "",
         FontColor 0.0 0.0 0.0 1.0,
         Text "Card Title",
     }
@@ -51,7 +51,7 @@ Frame "FRAME" "Card" {
         SetPoint BOTTOM, "Card", BOTTOM, 0.0, 0.02,
         FontJustificationH JUSTIFYCENTER,
         FontJustificationV JUSTIFYTOP,
-        FrameFont "nelf-libs/ccg/vendor/Itim/Itim-Regular.ttf", 0.007, "",
+        FrameFont "lib-nelf/ccg/vendor/Itim/Itim-Regular.ttf", 0.007, "",
         FontColor 0.0 0.0 0.0 1.0,
         Text "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque eu lorem dignissim justo sagittis elementum. Suspendisse auctor quis eros vitae elementum. Sed tempus sodales lorem, in ultricies tellus tincidunt at. Nullam ullamcorper aliquam massa, at efficitur metus. Fusce molestie nisi risus, non consectetur nulla aliquam non. Fusce euismod et dui quis egestas. Aenean lectus magna, sollicitudin non egestas a, consequat semper nisi. Quisque vitae. ",
     }
@@ -87,14 +87,14 @@ Frame "FRAME" "CardZoom" {
     Frame "BACKDROP" "CardZoomBackBG" {
         SetAllPoints,
         BackdropBlendAll,
-        BackdropBackground "nelf-libs/ccg/cardbacks/card-eco",
+        BackdropBackground "lib-nelf/ccg/cardbacks/card-eco",
     }
 
     // 1. BlzFrameSetTexture() //
     Frame "BACKDROP" "CardZoomFrontBG" {
         SetAllPoints,
         BackdropBlendAll,
-        BackdropBackground "nelf-libs/ccg/cardbacks/card-eco",
+        BackdropBackground "lib-nelf/ccg/cardbacks/card-eco",
     }
 
     // 2. BlzFrameSetTexture() //
@@ -104,7 +104,7 @@ Frame "FRAME" "CardZoom" {
         UseActiveContext,
         SetPoint BOTTOMLEFT, "CardZoom", BOTTOMLEFT, 0.045, 0.135,
         BackdropBlendAll,
-        BackdropBackground "ui-libs/assets/blank",
+        BackdropBackground "lib-ui/assets/blank",
     }
 
     // 3. BlzFrameSetText() //
@@ -113,7 +113,7 @@ Frame "FRAME" "CardZoom" {
         FontJustificationOffset 0 -0.015,
         FontJustificationH JUSTIFYCENTER,
         FontJustificationV JUSTIFYTOP,
-        FrameFont "nelf-libs/ccg/vendor/Itim/Itim-Regular.ttf", 0.012, "",
+        FrameFont "lib-nelf/ccg/vendor/Itim/Itim-Regular.ttf", 0.012, "",
         FontColor 0.0 0.0 0.0 1.0,
         Text "Card Title",
     }
@@ -126,7 +126,7 @@ Frame "FRAME" "CardZoom" {
         SetPoint BOTTOM, "CardZoom", BOTTOM, 0.0, 0.03,
         FontJustificationH JUSTIFYCENTER,
         FontJustificationV JUSTIFYTOP,
-        FrameFont "nelf-libs/ccg/vendor/Itim/Itim-Regular.ttf", 0.0105, "",
+        FrameFont "lib-nelf/ccg/vendor/Itim/Itim-Regular.ttf", 0.0105, "",
         FontColor 0.0 0.0 0.0 1.0,
         Text "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque eu lorem dignissim justo sagittis elementum. Suspendisse auctor quis eros vitae elementum. Sed tempus sodales lorem, in ultricies tellus tincidunt at. Nullam ullamcorper aliquam massa, at efficitur metus. Fusce molestie nisi risus, non consectetur nulla aliquam non. Fusce euismod et dui quis egestas. Aenean lectus magna, sollicitudin non egestas a, consequat semper nisi. Quisque vitae. ",
     }

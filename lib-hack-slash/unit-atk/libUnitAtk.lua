@@ -139,8 +139,9 @@ libUnitAtk.slash = setmetatable({
         -- Helper function: Damage one unit --
         local damageUnit = function(targetUnit)
             -- Track MaxHits --
-            if (hitCounts[targetUnit] == nil) then hitCounts[targetUnit] = 0
-            elseif (hitCounts[targetUnit] >= self.MaxHits) then return end
+            if (hitCounts[targetUnit] == nil) then hitCounts[targetUnit] = 0 end
+            if (hitCounts[targetUnit] >= self.MaxHits) then return
+            else hitCounts[targetUnit] = hitCounts[targetUnit] + 1 end
 
             -- Damage --
             local dmgMaxHp  = self.DmgMaxHpFactor * GetUnitState(targetUnit, UNIT_STATE_MAX_LIFE)
@@ -281,6 +282,10 @@ libUnitAtk.slash = setmetatable({
                     -- Cleanup everything else --
                     keyframesElapsed = keyframesElapsed + 1
                     if (keyframesElapsed >= self.Keyframes) then
+                        --Wait until last keyframe is done to cleanup--
+                        DisableTrigger(hitboxTrig)
+                        TriggerSleepAction(frameLength)
+                        --Cleanup--
                         DestroyFilter(filter)
                         for k, v in pairs(hitCounts) do hitCounts[k] = nil end
                         DestroyTrigger(hitboxTrig)
